@@ -24,3 +24,4 @@ Session-6-Distance-and-Dimensionality-Reduction/data/*
 datasets/*
 Session-11-Spacy-and-Transformers/out/*
 Session-11-Spacy-and-Transformers/tmp_trainer/*
+.DS_Store
