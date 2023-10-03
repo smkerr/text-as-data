@@ -620,6 +620,7 @@ elements recording what they said.</p>
 <pre class="r"><code># load packages
 pacman::p_load(
   dplyr,
+  here,
   janitor,
   kableExtra,
   purrr,
@@ -1131,10 +1132,10 @@ and print the information they contain.</p>
 download.file(&quot;https://www.bundestag.de/resource/blob/472878/a4859899e44a7cab1a8233e5dd69f2f3/MdB-Stammdaten-data.zip&quot;, &quot;temp&quot;)
 
 # unzip file
-unzip(here::here(&quot;KERR/temp&quot;))
+unzip(here(&quot;KERR/temp&quot;))
 
 # extract Lemke&#39;s record
-mdb_raw &lt;- here::here(&quot;KERR/MDB_STAMMDATEN.XML&quot;) |&gt;
+mdb_raw &lt;- here(&quot;KERR/MDB_STAMMDATEN.XML&quot;) |&gt;
   read_xml() |&gt; 
   xml_find_all(&quot;//MDB[NAMEN/NAME/NACHNAME/text() = &#39;Lemke&#39;]&quot;) 
 
@@ -1144,7 +1145,7 @@ mdb_df &lt;- mdb_raw |&gt;
   as_tibble_col() |&gt; 
   unnest_wider(&quot;value&quot;)
 
-# write function to unlist elements of a df (found via Google @jolyphil)
+# write function to unlist elements of a df (source: GitHub user @jolyphil)
 unlist_all &lt;- function(x) { 
   x[sapply(x, is.null)] &lt;- NA
   unlist(x)

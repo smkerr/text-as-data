@@ -23,6 +23,7 @@ Choose one of the sessions, and retrieve it using R or Python.
 # load packages
 pacman::p_load(
   dplyr,
+  here,
   janitor,
   kableExtra,
   purrr,
@@ -155,10 +156,10 @@ Using the resource "Stammdaten aller Abgeordneten seit 1949 im XML-Format", retr
 download.file("https://www.bundestag.de/resource/blob/472878/a4859899e44a7cab1a8233e5dd69f2f3/MdB-Stammdaten-data.zip", "temp")
 
 # unzip file
-unzip(here::here("KERR/temp"))
+unzip(here("KERR/temp"))
 
 # extract Lemke's record
-mdb_raw <- here::here("KERR/MDB_STAMMDATEN.XML") |>
+mdb_raw <- here("KERR/MDB_STAMMDATEN.XML") |>
   read_xml() |> 
   xml_find_all("//MDB[NAMEN/NAME/NACHNAME/text() = 'Lemke']") 
 
@@ -168,7 +169,7 @@ mdb_df <- mdb_raw |>
   as_tibble_col() |> 
   unnest_wider("value")
 
-# write function to unlist elements of a df (found via Google @jolyphil)
+# write function to unlist elements of a df (source: GitHub user @jolyphil)
 unlist_all <- function(x) { 
   x[sapply(x, is.null)] <- NA
   unlist(x)
