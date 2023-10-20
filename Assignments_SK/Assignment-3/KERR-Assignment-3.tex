@@ -208,7 +208,7 @@ approach will do the following:
 
 \CommentTok{\# get text}
 \NormalTok{url }\OtherTok{\textless{}{-}} \StringTok{"https://www.gutenberg.org/cache/epub/1934/pg1934.txt"}
-\NormalTok{text }\OtherTok{\textless{}{-}} \FunctionTok{read\_lines}\NormalTok{(url, }\AttributeTok{skip =} \DecValTok{104}\NormalTok{, }\AttributeTok{n\_max =} \DecValTok{958}\NormalTok{) }\CommentTok{\# lines 104{-}958 contain content we want}
+\NormalTok{text }\OtherTok{\textless{}{-}} \FunctionTok{read\_lines}\NormalTok{(url, }\AttributeTok{skip =} \DecValTok{104}\NormalTok{, }\AttributeTok{n\_max =} \DecValTok{1404}\NormalTok{) }\CommentTok{\# lines 104{-}1508 contain content we want}
 
 \CommentTok{\# wrangle data}
 \NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ text }\SpecialCharTok{|\textgreater{}} 

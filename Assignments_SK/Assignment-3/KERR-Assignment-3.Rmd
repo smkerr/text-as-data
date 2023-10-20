@@ -56,7 +56,7 @@ pacman::p_load(
 
 # get text
 url <- "https://www.gutenberg.org/cache/epub/1934/pg1934.txt"
-text <- read_lines(url, skip = 104, n_max = 958) # lines 104-958 contain content we want
+text <- read_lines(url, skip = 104, n_max = 1404) # lines 104-1508 contain content we want
 
 # wrangle data
 df <- text |> 
