@@ -129,7 +129,7 @@ For example, if we learnt 3-dimensional embeddings on a corpus of documents, we 
 
 How would we calculate the similarity of these?
 
-## Glove Embeddings
+## GloVe Embeddings
 
 [Glove](https://nlp.stanford.edu/projects/glove/) embeddings are trained on large Corpora (wikipedia, twitter, common crawl (loads of web data)).
 
@@ -143,13 +143,17 @@ library(textdata)
 library(coop)
 
 N_DIM <- 100
-glove <- embedding_glove6b(dimensions=N_DIM, dir="../embeddings")
+glove <- embedding_glove6b(
+  dimensions = N_DIM, 
+  dir = here::here("Session-7-Embeddings/embeddings"), 
+  return_path = TRUE, 
+  manual_download = TRUE
+  )
 word_matrix <- as.matrix(glove[,-1])
 rownames(word_matrix) <- glove$token
 words <- word_matrix[c("dog","cat","carbon"),]
 
 words[,1:5]
-
 ```
 
 Have a look at some words for yourself and identify their similarity in the embedding space. Do they represent meaningful distances?
@@ -231,6 +235,17 @@ If we want to find words that are similar to other words, then we can compare th
 
 \scriptsize
 
+```{r}
+word1 <- word_matrix["laptop",]
+word2 <- word_matrix["glacier"]
+
+words <- word_matrix[c("laptop", "glacier", "space", "freud", "pony", "nuclear", "bread"),]
+sims <- cosine(t(words))
+sims
+  
+
+```
+
 ```{r echo=TRUE, message=FALSE}
 
 vec_a <- word_matrix["cat",] 
@@ -282,6 +297,7 @@ def similar_words(word, word_matrix):
     return sims.sort_values(ascending=False)
 
 similar_words("carbon",word_matrix).head(6)
+
 
 ```
 

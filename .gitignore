@@ -27,3 +27,5 @@ Session-11-Spacy-and-Transformers/tmp_trainer/*
 .DS_Store
 **/manifesto_apikey.txt
 Assignments_SK/Assignment-4/data/corpus.rds
+Session-7-Embeddings/embeddings/glove6b/glove_6b_100.rds
+Session-7-Embeddings/embeddings/glove6b/glove.6B.zip
