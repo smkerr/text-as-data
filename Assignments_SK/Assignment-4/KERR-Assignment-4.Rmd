@@ -30,10 +30,12 @@ You will also be assessed on the presentation of your results, and on the concis
 ```{r}
 # load packages
 pacman::p_load(
+  dplyr, 
   here,
   lubridate,
   manifestoR,
-  readr
+  readr,
+  tidyr
   )
 ```
 
@@ -42,57 +44,144 @@ pacman::p_load(
 Bring together a dataset from the WZB.
 
 ```{r}
-data_path <- here("Assignments_SK/Assignment-4/data/corpus.rds") # define file path for data
+# define countries
+countries <- c("Australia", "Canada", "South Africa", "New Zealand", "United Kingdom", "United States") # English-speaking countries
 
+# load codebook
+ref_df <- read_csv(here("Assignments_SK/Assignment-4/docs/documents_MPDataset_MPDS2023a.csv")) |> 
+  filter(countryname %in% countries) |>
+  select(country:partyname) |> 
+  distinct()
+
+# define file path for data
+data_path <- here("Assignments_SK/Assignment-4/data/corpus.rds") 
+
+# download data if not yet downloaded
 if (!file.exists(data_path)) {
   
   # set API key
   mp_setapikey(here("Assignments_SK/Assignment-4/manifesto_apikey.txt"))
   
   # query data
-  corpus <- mp_corpus(countryname == "United States" & edate > as_date("2000-01-01"))
+  corpus <- mp_corpus(countryname %in% countries & edate > as_date("2000-01-01"))
   
   # save data
   saveRDS(corpus, here("Assignments_SK/Assignment-4/data/corpus.rds"))
   
 } else {
   
-  read_rds()
+  # load data
+  corpus <- read_rds(data_path)
   
 }
 
-
+# inspect corupus
+corpus
 ```
 
 ```{r}
 # explore data
-head(content(corpus[[1]])) ## view beginning of text of first manifesto
-table(codes(corpus)) ## count codes of all manifestos
+head(content(corpus[[1]])) # view beginning of text of first manifesto
+table(codes(corpus)) # count codes of all manifestos
+meta(corpus[[1]]) # view meta data of first manifesto
 ```
 
 What years, countries and parties are included in the dataset? How many texts do you have for each of these?
+
+```{r}
+# initialize empty df
+meta_df <- tibble()
+
+# for each doc in corpus...
+for (i in seq_along(corpus)) {
+  
+  # extract meta data 
+  meta_doc <- meta(corpus[[i]]) |> 
+    unlist() |> 
+    as_tibble() |> 
+    bind_cols(
+      var = meta(corpus[[i]]) |> # extract var names
+        unlist() |> 
+        names()
+      ) |> 
+    pivot_wider(names_from = "var", values_from = "value")
+  
+  # append to meta data df
+  meta_df <- meta_df |> 
+    bind_rows(meta_doc)
+}
+
+glimpse(meta_df)
+janitor::tabyl(meta_df$is_copy_of)
+# identify edge cases
+meta_df |> 
+  filter(has_eu_code == "TRUE")
+meta_df |> 
+  filter(is.na(is_primary_doc))
+meta_df |> 
+  filter(annotations == "FALSE")
+janitor::tabyl(meta_df$handbook) # TODO: check out handbooks
+janitor::tabyl(meta_df$is_copy_of) # TODO: de-duplicate copies 
+
+meta_df$party |> unique() 
+ref_df$party |> unique()
+
+# combine with codebook
+meta_df |> 
+  # TODO: de-duplicate copies
+  select(id, party_id = party, date, language, source, is_copy_of) |>
+  mutate(
+    party_id = as.numeric(party_id),
+    date = as_date(date, format = "%Y%m")
+    ) |> 
+  left_join(ref_df, by = join_by(party_id == party))
+
+```
+
 Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.
+
+```{r}
+# pre-processing
+corpus_cleaned <- tm_map(corpus, removePunctuation)
+corpus_nostop <- tm_map(corpus_cleaned, removeWords, stopwords("english"))
+```
 
 ## 2. Research question
 
 Describe a research question you want to explore with topic modelling. Comment on how answerable this is with the methods and data at your disposal.
 
+```{r}
+
+```
+
 ## 3. Topic model development
 
 Create a topic model using your data. Explain to a non-specialist what the topic model does. Comment on the choices you make here in terms of hyperparameter selection and model choice. How might these affect your results and the ability to answer your research question?
+
+```{r}
+
+```
 
 ## 4. Topic model description
 
 Describe the topic model. What topics does it contain? How are these distributed across the data?
 
+```{r}
+
+```
+
 ## 5. Answering your research question
 
 Use your topic model to answer your research question by showing plots or statistical results. Discuss the implications of what you find, and any limitations inherent in your approach. Discuss how the work could be improved upon in future research.
 
+```{r}
+
+```
+
 # Sources
 
-Lehmann, Pola / Franzmann, Simon / Burst, Tobias / Regel, Sven / Riethmüller, Felicia / Volkens, Andrea / Weßels, Bernhard / Zehnter, Lisa (2023): The Manifesto Data Collection. Manifesto Project (MRG/CMP/MARPOR). Version 2023a. Berlin: Wissenschaftszentrum Berlin für Sozialforschung (WZB) / Göttingen: Institut für Demokratieforschung (IfDem). https://doi.org/10.25522/manifesto.mpds.2023a
+-   Lehmann, Pola / Franzmann, Simon / Burst, Tobias / Regel, Sven / Riethmüller, Felicia / Volkens, Andrea / Weßels, Bernhard / Zehnter, Lisa (2023): The Manifesto Data Collection. Manifesto Project (MRG/CMP/MARPOR). Version 2023a. Berlin: Wissenschaftszentrum Berlin für Sozialforschung (WZB) / Göttingen: Institut für Demokratieforschung (IfDem). <https://doi.org/10.25522/manifesto.mpds.2023a>
 
 # Resources
 
-    * (manifestoR vignette)[https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf]
+-   [`manifestoR` vignette](https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf)
