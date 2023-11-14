@@ -36,6 +36,12 @@ pacman::p_load(
   manifestoR,
   readr,
   tidyr
+  #NMF,
+  #quanteda,
+  #topicmodels,
+  #tidytext,
+  #LDAvis,
+  #stm
   )
 ```
 
@@ -43,15 +49,21 @@ pacman::p_load(
 
 Bring together a dataset from the WZB.
 
-```{r}
+```{r, message=FALSE}
 # define countries
 countries <- c("Australia", "Canada", "South Africa", "New Zealand", "United Kingdom", "United States") # English-speaking countries
 
 # load codebook
 ref_df <- read_csv(here("Assignments_SK/Assignment-4/docs/documents_MPDataset_MPDS2023a.csv")) |> 
-  filter(countryname %in% countries) |>
-  select(country:partyname) |> 
-  distinct()
+  rename(
+    country_id = country, 
+    country = countryname, 
+    party_id = party, 
+    party = partyname
+    ) |> 
+  select(country_id:party) |> 
+  filter(country %in% countries) |>
+  distinct() 
 
 # define file path for data
 data_path <- here("Assignments_SK/Assignment-4/data/corpus.rds") 
@@ -75,18 +87,14 @@ if (!file.exists(data_path)) {
   
 }
 
-# inspect corupus
-corpus
+# # inspect corupus
+# corpus
+# # explore data
+# head(content(corpus[[1]])) # view beginning of text of first manifesto
+# table(codes(corpus)) # count codes of all manifestos
+# meta(corpus[[1]]) # view meta data of first manifesto
 ```
 
-```{r}
-# explore data
-head(content(corpus[[1]])) # view beginning of text of first manifesto
-table(codes(corpus)) # count codes of all manifestos
-meta(corpus[[1]]) # view meta data of first manifesto
-```
-
-What years, countries and parties are included in the dataset? How many texts do you have for each of these?
 
 ```{r}
 # initialize empty df
@@ -111,48 +119,101 @@ for (i in seq_along(corpus)) {
     bind_rows(meta_doc)
 }
 
-glimpse(meta_df)
-janitor::tabyl(meta_df$is_copy_of)
-# identify edge cases
 meta_df |> 
-  filter(has_eu_code == "TRUE")
-meta_df |> 
-  filter(is.na(is_primary_doc))
-meta_df |> 
-  filter(annotations == "FALSE")
-janitor::tabyl(meta_df$handbook) # TODO: check out handbooks
-janitor::tabyl(meta_df$is_copy_of) # TODO: de-duplicate copies 
+  knitr::kable()
+```
 
-meta_df$party |> unique() 
-ref_df$party |> unique()
-
+```{r}
 # combine with codebook
-meta_df |> 
-  # TODO: de-duplicate copies
-  select(id, party_id = party, date, language, source, is_copy_of) |>
+df <- meta_df |> 
+  filter(
+    is.na(is_copy_of), # remove copies
+    language == "english" # remove non-English texts
+    ) |> 
+  select(doc_id = id, doc = title, party_id = party, date) |>
   mutate(
     party_id = as.numeric(party_id),
-    date = as_date(date, format = "%Y%m")
+    date = as_date(date, format = "%Y%m"),
+    year = year(date)
     ) |> 
-  left_join(ref_df, by = join_by(party_id == party))
+  left_join(ref_df, by = join_by(party_id)) |> ### many-to-many relationship
+  relocate(contains("country"), contains("party"), date, contains("doc")) |> 
+  arrange(date) 
 
+df |> 
+  knitr::kable()
+```
+
+What years, countries and parties are included in the dataset? How many texts do you have for each of these?
+
+> We limit our analysis to the following predominantly English-speaking countries: Australia, Canada, New Zealand, South Africa, the United Kingdom, and the United States. We examine the period from 2000 to 2020 (the latest year for which data are available). We exclude parties with less than three manifestos over this twenty-year period. In total, our analysis includes **twenty-six parties**: Australia (6), Canada (4), New Zealand (7), South Africa (3), the United Kingdom (4), and the United States (2).
+
+```{r}
+library(ggplot2)
+
+# plot no. of manifestos by country over time
+ggplot(df, aes(x = year, fill = country)) + # TODO: Implement filtering criteria here too
+  geom_bar() + 
+  scale_fill_brewer(palette = "Paired") + 
+  labs(
+    title = "Party Manifestos",
+    subtitle = "2000-2020",
+    x = NULL,
+    y = "Manifestos",
+    fill = NULL,
+    caption = "source: WZB"
+  ) +
+  scale_x_continuous(breaks = min(df$year):max(df$year)) +
+  scale_y_continuous(breaks = seq(0, 35, 5)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# determine filtering criteria
+df |> 
+  count(country, party) |> 
+  ggplot() +
+  geom_bar(aes(x = n)) + 
+  scale_x_continuous(breaks = 0:7) +
+  labs(
+    x = "No. manifestos",
+    y = "No. parties"
+    ) +
+  theme_minimal()
+  
+# table of countries and parties
+df |> 
+  select(country, party) |> 
+  count(country, party) |> 
+  filter(n > 3) |> 
+  arrange(country, desc(n)) |> 
+  select(-n) |> 
+  gt(
+    rowname_col = "party",
+    groupname_col = "country",
+    row_group_as_column = TRUE
+  )
 ```
 
 Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.
 
+> 
+
 ```{r}
 # pre-processing
-corpus_cleaned <- tm_map(corpus, removePunctuation)
-corpus_nostop <- tm_map(corpus_cleaned, removeWords, stopwords("english"))
+dfmat <- corpus |> 
+  tm_map(removePunctuation) |> 
+  tm_map(removeWords, stopwords("english")) |> 
+  TermDocumentMatrix()
+dfmat
 ```
 
 ## 2. Research question
 
 Describe a research question you want to explore with topic modelling. Comment on how answerable this is with the methods and data at your disposal.
 
-```{r}
-
-```
+> For my research question, I am interested in exploring the extent to which climate-related issues were included in various parties' manifestos. Specifically, I am interested in whether a party's willingness to express a stance on climate change is more related to their political leaning or the country. 
 
 ## 3. Topic model development
 
