@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Steve Kerr (211924)" />
+
+<meta name="date" content="2023-10-23" />
+
+<title>Assignment 4</title>
+
+<script src="KERR-Assignment-4v1_files/header-attrs-2.25/header-attrs.js"></script>
+<script src="KERR-Assignment-4v1_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="KERR-Assignment-4v1_files/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
+<script src="KERR-Assignment-4v1_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="KERR-Assignment-4v1_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="KERR-Assignment-4v1_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="KERR-Assignment-4v1_files/navigation-1.1/tabsets.js"></script>
+<link href="KERR-Assignment-4v1_files/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="KERR-Assignment-4v1_files/pagedtable-1.1/js/pagedtable.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Assignment 4</h1>
+<h4 class="author">Steve Kerr (211924)</h4>
+<h4 class="date">2023-10-23</h4>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In this assignment, you are asked to use topic modelling to
+investigate manifestos from the manifesto project maintained by <a
+href="https://manifesto-project.wzb.eu/">WZB</a>. You can either use the
+UK manifestos we looked at together in class, or collect your own set of
+manifestos by choosing the country/countries, year/years and
+party/parties you are interested in. You should produce a report which
+includes your code, that addresses the following aspects of creating a
+topic model, making sure to answer the questions below.</p>
+<p>This time, you will be assessed not only on whether the code gets the
+right result, but on how you understand and communicate your
+understanding of the modelling process and how this can answer your
+research question. The best research question is one that is interesting
+and answerable, but the most important thing is that the research
+question is answerable with the methods you choose.</p>
+<p>You will also be assessed on the presentation of your results, and on
+the concision and readability of your code.</p>
+<blockquote>
+<p>We start by loading our packages.</p>
+</blockquote>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: discard irrelevant packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co"># load packages</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  dplyr, </span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  ggplot2,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  gt, </span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  here,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  kableExtra,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  knitr,</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  lubridate,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  manifestoR,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  readr,</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  tidyr</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="co">#NMF, </span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="co">#quanteda,</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="co">#topicmodels,</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="co">#tidytext,</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  <span class="co">#LDAvis,</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="co">#stm</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  )</span></code></pre></div>
+<div id="data-acquisition-description-and-preparation"
+class="section level2">
+<h2>1. Data acquisition, description, and preparation</h2>
+<p>Bring together a dataset from the WZB.</p>
+<p>What years, countries and parties are included in the dataset? How
+many texts do you have for each of these?</p>
+<blockquote>
+<p>I limit my analysis to the following predominantly English-speaking
+countries: Australia, Canada, New Zealand, South Africa, the United
+Kingdom, and the United States. I examine the period from 2000 to 2020
+(the latest year for which data are available). Furthermore, I exclude
+parties with less than three manifestos over the twenty-year period. In
+total, the analysis includes <strong>twenty-six parties</strong>:
+Australia (6), Canada (4), New Zealand (7), South Africa (3), the United
+Kingdom (4), and the United States (2). Our corpus consists of 145 party
+manifestos.</p>
+</blockquote>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># list of English-speaking countries</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>countries <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="st">&quot;Australia&quot;</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="st">&quot;Canada&quot;</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="st">&quot;South Africa&quot;</span>, </span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="st">&quot;New Zealand&quot;</span>, </span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="st">&quot;United Kingdom&quot;</span>, </span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="st">&quot;United States&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  ) </span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># load WZB Manifesto Project codebook (source: https://manifesto-project.wzb.eu/datasets)</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: implement mp_maindataset() in place of codebook</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: does it make sense to use mp_codebook() in place of codebook? Could be used with mp_describe_code(&quot;504&quot;) to describe WZB codes</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>ref_df <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">&quot;Assignments_SK/Assignment-4/docs/documents_MPDataset_MPDS2023a.csv&quot;</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="fu">rename</span>( <span class="co"># choose intuitive var names</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">country_id =</span> country, </span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    <span class="at">country =</span> countryname, </span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    <span class="at">party_id =</span> party, </span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    <span class="at">party =</span> partyname</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="fu">select</span>(country_id<span class="sc">:</span>party) <span class="sc">|&gt;</span> </span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="fu">filter</span>(country <span class="sc">%in%</span> countries) <span class="sc">|&gt;</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="fu">distinct</span>() </span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="fu">head</span>(ref_df)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["country_id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["country"],"name":[2],"type":["chr"],"align":["left"]},{"label":["party_id"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["party"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"51","2":"United Kingdom","3":"51110","4":"Green Party of England and Wales"},{"1":"51","2":"United Kingdom","3":"51210","4":"We Ourselves"},{"1":"51","2":"United Kingdom","3":"51320","4":"Labour Party"},{"1":"51","2":"United Kingdom","3":"51330","4":"Social Democratic Party"},{"1":"51","2":"United Kingdom","3":"51340","4":"Social Democratic and Labour Party"},{"1":"51","2":"United Kingdom","3":"51420","4":"Liberal Party"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># define file path for WZB Manifesto Project data</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">&quot;Assignments_SK/Assignment-4/data/corpus.rds&quot;</span>) </span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># download data if doesn&#39;t already exist</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(data_path)) {</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  </span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="co"># set API key</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="fu">mp_setapikey</span>(<span class="fu">here</span>(<span class="st">&quot;Assignments_SK/Assignment-4/manifesto_apikey.txt&quot;</span>))</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="co"># query data</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  corpus <span class="ot">&lt;-</span> <span class="fu">mp_corpus</span>(countryname <span class="sc">%in%</span> countries <span class="sc">&amp;</span> edate <span class="sc">&gt;</span> <span class="fu">as_date</span>(<span class="st">&quot;2000-01-01&quot;</span>)) <span class="co"># </span><span class="al">TODO</span><span class="co">: implement mp_metadata() for this step</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="co"># mp_metadata(countryname %in% countries &amp; edate &gt; as_date(&quot;2000-01-01&quot;)) </span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  </span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="co"># save data</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  <span class="fu">saveRDS</span>(corpus, <span class="fu">here</span>(<span class="st">&quot;Assignments_SK/Assignment-4/data/corpus.rds&quot;</span>))</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>  <span class="co"># </span><span class="al">TODO</span><span class="co">: implement mp_save_cache(file = &quot;manifesto_cache.RData&quot;)</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  </span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>  </span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>  <span class="co"># load data</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>  corpus <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(data_path)</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>  <span class="co"># </span><span class="al">TODO</span><span class="co">: implement mp_load_cache(file = &quot;manifesto_cache.RData&quot;)</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>  </span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>}</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co"># # inspect corpus</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co"># corpus</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co"># # explore data</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co"># head(content(corpus[[1]])) # view beginning of text of first manifesto</span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co"># table(codes(corpus)) # count codes of all manifestos</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co"># meta(corpus[[1]]) # view meta data of first manifesto</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># initialize empty df to store meta data</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>meta_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># for each doc in corpus...</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(corpus)) {</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="co"># extract meta data </span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  meta_doc <span class="ot">&lt;-</span> <span class="fu">meta</span>(corpus[[i]]) <span class="sc">|&gt;</span> </span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>    <span class="fu">unlist</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>    <span class="fu">bind_cols</span>(</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>      <span class="at">var =</span> <span class="fu">meta</span>(corpus[[i]]) <span class="sc">|&gt;</span> <span class="co"># extract var names</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>        <span class="fu">unlist</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>        <span class="fu">names</span>()</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>      ) <span class="sc">|&gt;</span> </span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">&quot;var&quot;</span>, <span class="at">values_from =</span> <span class="st">&quot;value&quot;</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>  </span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  <span class="co"># append to meta data df</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> meta_df <span class="sc">|&gt;</span> </span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>    <span class="fu">bind_rows</span>(meta_doc)</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>}</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="fu">head</span>(meta_df)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["manifesto_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["party"],"name":[2],"type":["chr"],"align":["left"]},{"label":["date"],"name":[3],"type":["chr"],"align":["left"]},{"label":["language"],"name":[4],"type":["chr"],"align":["left"]},{"label":["source"],"name":[5],"type":["chr"],"align":["left"]},{"label":["has_eu_code"],"name":[6],"type":["chr"],"align":["left"]},{"label":["is_primary_doc"],"name":[7],"type":["chr"],"align":["left"]},{"label":["may_contradict_core_dataset"],"name":[8],"type":["chr"],"align":["left"]},{"label":["md5sum_text"],"name":[9],"type":["chr"],"align":["left"]},{"label":["url_original"],"name":[10],"type":["chr"],"align":["left"]},{"label":["md5sum_original"],"name":[11],"type":["chr"],"align":["left"]},{"label":["annotations"],"name":[12],"type":["chr"],"align":["left"]},{"label":["handbook"],"name":[13],"type":["chr"],"align":["left"]},{"label":["is_copy_of"],"name":[14],"type":["chr"],"align":["left"]},{"label":["title"],"name":[15],"type":["chr"],"align":["left"]},{"label":["id"],"name":[16],"type":["chr"],"align":["left"]}],"data":[{"1":"51110_201505","2":"51110","3":"201505","4":"english","5":"MARPOR","6":"FALSE","7":"TRUE","8":"FALSE","9":"83abcca2fd35fcbe10f2ade8a234f7be","10":"/down/originals/2016-1/51110_2015.pdf","11":"715a50a572be00220f867a1086fb176c","12":"TRUE","13":"4","14":"NA","15":"For the common good. General election manifesto 2015","16":"51110_201505"},{"1":"51110_201706","2":"51110","3":"201706","4":"english","5":"MARPOR","6":"FALSE","7":"TRUE","8":"FALSE","9":"5f629ffbde9d9363760623bbe2fb5c6d","10":"/down/originals/2018-2/51110_2017.pdf","11":"f07bd4ef0a3d822107305c869cb5059f","12":"TRUE","13":"5","14":"NA","15":"The Green Party for a confident and caring Britain","16":"51110_201706"},{"1":"51110_201912","2":"51110","3":"201912","4":"english","5":"MARPOR","6":"FALSE","7":"TRUE","8":"FALSE","9":"33ea9f1611ba9f4fc9bc98cc6dd5422d","10":"/down/originals/2020-1/51110_2019.pdf","11":"db0d3e814bdbeed362ea81e53066dc37","12":"TRUE","13":"5","14":"NA","15":"If not now, when?","16":"51110_201912"},{"1":"51210_201505","2":"51210","3":"201505","4":"english","5":"MARPOR","6":"FALSE","7":"TRUE","8":"FALSE","9":"5704eeb787da6e874f97f9d1689c164e","10":"/down/originals/2016-1/51210_2015.pdf","11":"ea2c5cc196d5552874ba8cdc4245b0f6","12":"TRUE","13":"4","14":"NA","15":"Equality not austerity Comhionannas ní déine. Sinn Féin 2015 Westminster election manifesto","16":"51210_201505"},{"1":"51210_201706","2":"51210","3":"201706","4":"english","5":"MARPOR","6":"FALSE","7":"TRUE","8":"FALSE","9":"cc0227d8491ce262ebd308fb2ea81fa7","10":"/down/originals/2018-2/51210_2017.pdf","11":"a39d4292b275c01a364ece25eb2224aa","12":"TRUE","13":"5","14":"NA","15":"Sinn Féin. Westminster election manifesto 2017. No Brexit. No border. No Tory cuts","16":"51210_201706"},{"1":"51210_201912","2":"51210","3":"201912","4":"english","5":"MARPOR","6":"FALSE","7":"TRUE","8":"FALSE","9":"c8c32510e9df570a556c59822bc7422c","10":"/down/originals/2020-1/51210_2019.pdf","11":"1201b63b1ef643cc8e178b72e629a10a","12":"TRUE","13":"5","14":"NA","15":"Time for unity","16":"51210_201912"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># wrangle meta data</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>meta_df <span class="ot">&lt;-</span> meta_df <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="fu">is.na</span>(is_copy_of), <span class="co"># remove copies</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    language <span class="sc">==</span> <span class="st">&quot;english&quot;</span> <span class="co"># remove non-English texts</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">doc_id =</span> id, <span class="at">doc =</span> title, <span class="at">party_id =</span> party, date) <span class="sc">|&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="fu">group_by</span>(doc_id) <span class="sc">|&gt;</span> </span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="at">party_id =</span> <span class="fu">as.numeric</span>(party_id),</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    <span class="at">date =</span> <span class="fu">as_date</span>(date, <span class="at">format =</span> <span class="st">&quot;%Y%m&quot;</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">year</span>(date)</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>    )</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="fu">head</span>(meta_df)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["doc_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["doc"],"name":[2],"type":["chr"],"align":["left"]},{"label":["party_id"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["date"],"name":[4],"type":["date"],"align":["right"]},{"label":["year"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"51110_201505","2":"For the common good. General election manifesto 2015","3":"51110","4":"2015-05-01","5":"2015"},{"1":"51110_201706","2":"The Green Party for a confident and caring Britain","3":"51110","4":"2017-06-01","5":"2017"},{"1":"51110_201912","2":"If not now, when?","3":"51110","4":"2019-12-01","5":"2019"},{"1":"51210_201505","2":"Equality not austerity Comhionannas ní déine. Sinn Féin 2015 Westminster election manifesto","3":"51210","4":"2015-05-01","5":"2015"},{"1":"51210_201706","2":"Sinn Féin. Westminster election manifesto 2017. No Brexit. No border. No Tory cuts","3":"51210","4":"2017-06-01","5":"2017"},{"1":"51210_201912","2":"Time for unity","3":"51210","4":"2019-12-01","5":"2019"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># combine meta data with codebook info</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>df <span class="ot">&lt;-</span> meta_df <span class="sc">|&gt;</span> </span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">left_join</span>(ref_df, <span class="at">by =</span> <span class="fu">join_by</span>(party_id)) <span class="sc">|&gt;</span> <span class="do">### </span><span class="al">TODO</span><span class="do">: many-to-many relationship</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">relocate</span>(<span class="fu">contains</span>(<span class="st">&quot;country&quot;</span>), <span class="fu">contains</span>(<span class="st">&quot;party&quot;</span>), date, <span class="fu">contains</span>(<span class="st">&quot;doc&quot;</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">arrange</span>(date) </span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu">head</span>(df)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["country_id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["country"],"name":[2],"type":["chr"],"align":["left"]},{"label":["party_id"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["party"],"name":[4],"type":["chr"],"align":["left"]},{"label":["date"],"name":[5],"type":["date"],"align":["right"]},{"label":["doc_id"],"name":[6],"type":["chr"],"align":["left"]},{"label":["doc"],"name":[7],"type":["chr"],"align":["left"]},{"label":["year"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"61","2":"United States","3":"61320","4":"Democratic Party","5":"1960-11-01","6":"61320_196011","7":"Democratic Party Platform 1960","8":"1960"},{"1":"61","2":"United States","3":"61620","4":"Republican Party","5":"1960-11-01","6":"61620_196011","7":"Republican Party Platform 1960","8":"1960"},{"1":"51","2":"United Kingdom","3":"51320","4":"Labour Party","5":"1964-10-01","6":"51320_196410","7":"Let’s Go With Labour for the New Britain","8":"1964"},{"1":"51","2":"United Kingdom","3":"51620","4":"Conservative Party","5":"1964-10-01","6":"51620_196410","7":"‘Prosperity with a Purpose’, Conservative and Unionist Party’s Policy","8":"1964"},{"1":"61","2":"United States","3":"61320","4":"Democratic Party","5":"1964-11-01","6":"61320_196411","7":"Democratic Party Platform 1964","8":"1964"},{"1":"61","2":"United States","3":"61620","4":"Republican Party","5":"1964-11-01","6":"61620_196411","7":"Republican Party Platform 1964","8":"1964"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># determine filtering criteria</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">count</span>(country, party) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">x =</span> n)) <span class="sc">+</span> </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">7</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;No. manifestos&quot;</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;No. parties&quot;</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="KERR-Assignment-4v1_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># drop parties with less than three manifestos between 2000-2020</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>df <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">group_by</span>(country, party) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">&gt;</span> <span class="dv">3</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># table of countries and parties</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="fu">count</span>(country, party) <span class="sc">|&gt;</span> </span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="fu">arrange</span>(country, <span class="fu">desc</span>(n)) <span class="sc">|&gt;</span> </span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>n) <span class="sc">|&gt;</span> </span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="fu">gt</span>(</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    <span class="at">rowname_col =</span> <span class="st">&quot;party&quot;</span>,</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    <span class="at">groupname_col =</span> <span class="st">&quot;country&quot;</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>    <span class="at">row_group_as_column =</span> <span class="cn">TRUE</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>  )</span></code></pre></div>
+<div id="eqcmihhfzw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eqcmihhfzw table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#eqcmihhfzw thead, #eqcmihhfzw tbody, #eqcmihhfzw tfoot, #eqcmihhfzw tr, #eqcmihhfzw td, #eqcmihhfzw th {
+  border-style: none;
+}
+
+#eqcmihhfzw p {
+  margin: 0;
+  padding: 0;
+}
+
+#eqcmihhfzw .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#eqcmihhfzw .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#eqcmihhfzw .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#eqcmihhfzw .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#eqcmihhfzw .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#eqcmihhfzw .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#eqcmihhfzw .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#eqcmihhfzw .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#eqcmihhfzw .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#eqcmihhfzw .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#eqcmihhfzw .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#eqcmihhfzw .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#eqcmihhfzw .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#eqcmihhfzw .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#eqcmihhfzw .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqcmihhfzw .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#eqcmihhfzw .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#eqcmihhfzw .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#eqcmihhfzw .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqcmihhfzw .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#eqcmihhfzw .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqcmihhfzw .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#eqcmihhfzw .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqcmihhfzw .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eqcmihhfzw .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqcmihhfzw .gt_left {
+  text-align: left;
+}
+
+#eqcmihhfzw .gt_center {
+  text-align: center;
+}
+
+#eqcmihhfzw .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#eqcmihhfzw .gt_font_normal {
+  font-weight: normal;
+}
+
+#eqcmihhfzw .gt_font_bold {
+  font-weight: bold;
+}
+
+#eqcmihhfzw .gt_font_italic {
+  font-style: italic;
+}
+
+#eqcmihhfzw .gt_super {
+  font-size: 65%;
+}
+
+#eqcmihhfzw .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#eqcmihhfzw .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#eqcmihhfzw .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#eqcmihhfzw .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#eqcmihhfzw .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#eqcmihhfzw .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#eqcmihhfzw .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="2" scope="colgroup" id=""></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="United Kingdom stub_2_1 stub_1" rowspan="4" class="gt_row gt_left gt_stub_row_group">United Kingdom</td>
+<th id="stub_2_1" scope="row" class="gt_row gt_left gt_stub">Conservative Party</th></tr>
+    <tr><th id="NA_2" scope="row" class="gt_row gt_left gt_stub">Labour Party</th></tr>
+    <tr><th id="NA_3" scope="row" class="gt_row gt_left gt_stub">Liberal Democrats</th></tr>
+    <tr><th id="NA_4" scope="row" class="gt_row gt_left gt_stub">Scottish National Party</th></tr>
+    <tr class="gt_row_group_first"><td headers="United States stub_2_5 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">United States</td>
+<th id="stub_2_5" scope="row" class="gt_row gt_left gt_stub">Democratic Party</th></tr>
+    <tr><th id="NA_6" scope="row" class="gt_row gt_left gt_stub">Republican Party</th></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># plot number of manifestos by country over time</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">count</span>(year, country) <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> n, <span class="at">fill =</span> country)) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  </span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Party Manifestos&quot;</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;2000-2020&quot;</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;Manifestos&quot;</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>    <span class="at">fill =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;source: WZB&quot;</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> country, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">min</span>(df<span class="sc">$</span>year)<span class="sc">:</span><span class="fu">max</span>(df<span class="sc">$</span>year)) <span class="sc">+</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">35</span>, <span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div>
+<p><img src="KERR-Assignment-4v1_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<blockquote>
+<p>We can observe differences in the countries with regularly scheduled
+election cycles (Australia, New Zealand, South Africa, and the United
+States) compared to those with parliamentarian systems (Canada and the
+United Kingdom) (?). The number of party manifestos for each country
+varies: United States (2)</p>
+</blockquote>
+<p>Prepare your data for topic modelling by creating a document feature
+matrix. Describe the choices you make here, and comment on how these
+might affect your final result.</p>
+<blockquote>
+
+</blockquote>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># # list of Manifesto IDs</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># doc_ids &lt;- df$doc_id |&gt; unique()</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># # initialize empty df to store text data</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co"># corpus_filtered &lt;- tibble()</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co"># # extract texts</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co"># for (i in 1:length(corpus)) {</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#   </span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#   if (meta(corpus[[i]])$manifesto_id %in% doc_ids) { # only include texts we&#39;ve identified</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#     </span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#     #tibble(</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#     #  doc_id = meta(corpus[[i]])$manifesto_id,</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#     #  doc = paste(content(corpus[[i]]))</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#     #)</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#     </span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#     </span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#   </span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co"># corpus </span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co"># doc_subcodes &lt;- subset(doc, codes(doc) %in% c(202, 503, 607))</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co"># length(doc_subcodes)</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co"># library(quanteda)</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co"># corpus</span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co"># # pre-processing</span></span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co"># dfmat &lt;- corpus |&gt; </span></span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#   tm_map(removePunctuation) |&gt; </span></span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#   tm_map(removeWords, stopwords(&quot;english&quot;)) |&gt; </span></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#   TermDocumentMatrix()</span></span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co"># dfmat</span></span></code></pre></div>
+</div>
+<div id="research-question" class="section level2">
+<h2>2. Research question</h2>
+<p>Describe a research question you want to explore with topic
+modelling. Comment on how answerable this is with the methods and data
+at your disposal.</p>
+<blockquote>
+<p>For my research question, I am interested in exploring the extent to
+which climate-related issues were included in various parties’
+manifestos. Specifically, I am interested in whether a party’s
+willingness to express a stance on climate change is more related to
+their political leaning or the country.</p>
+</blockquote>
+</div>
+<div id="topic-model-development" class="section level2">
+<h2>3. Topic model development</h2>
+<p>Create a topic model using your data. Explain to a non-specialist
+what the topic model does. Comment on the choices you make here in terms
+of hyperparameter selection and model choice. How might these affect
+your results and the ability to answer your research question?</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co">#The definition of a “good” topic is not universal but task dependent.</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#A good topic model is one that helps us to answer the research question we have in mind, or helps us to better perform the task we have.</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#Sometimes we want the big picture (few topics), sometimes we want fine-grained detail (many topics).</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#What we should ensure is that any results we present are not an artefact of an arbitrary model choice we make, but are robust to a variety of reasonable specifications.</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># evaluate performance</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#A quick heuristic for naming topics is to concatenate the top 3 terms for each topic.</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#If we want to use our model then we should give meaningful names to topics by inspecting the top terms and top documents associated with each topic.</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#Loss/heldout-likelihood based measures work by comparing the topic predictions of words in documents to the actually observed numbers of words in documents.</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#Coherence based measures work by assessing whether the words in a topic are similar. If words in a topic only infrequently co-occur in documents, then this topic is considered less coherent.</span></span></code></pre></div>
+</div>
+<div id="topic-model-description" class="section level2">
+<h2>4. Topic model description</h2>
+<p>Describe the topic model. What topics does it contain? How are these
+distributed across the data?</p>
+</div>
+<div id="answering-your-research-question" class="section level2">
+<h2>5. Answering your research question</h2>
+<p>Use your topic model to answer your research question by showing
+plots or statistical results. Discuss the implications of what you find,
+and any limitations inherent in your approach. Discuss how the work
+could be improved upon in future research.</p>
+</div>
+</div>
+<div id="sources" class="section level1">
+<h1>Sources</h1>
+<ul>
+<li>Lehmann, Pola / Franzmann, Simon / Burst, Tobias / Regel, Sven /
+Riethmüller, Felicia / Volkens, Andrea / Weßels, Bernhard / Zehnter,
+Lisa (2023): The Manifesto Data Collection. Manifesto Project
+(MRG/CMP/MARPOR). Version 2023a. Berlin: Wissenschaftszentrum Berlin für
+Sozialforschung (WZB) / Göttingen: Institut für Demokratieforschung
+(IfDem). <a href="https://doi.org/10.25522/manifesto.mpds.2023a"
+class="uri">https://doi.org/10.25522/manifesto.mpds.2023a</a></li>
+</ul>
+</div>
+<div id="resources" class="section level1">
+<h1>Resources</h1>
+<ul>
+<li><a
+href="https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf"><code>manifestoR</code>
+vignette</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

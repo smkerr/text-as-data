@@ -3,16 +3,15 @@ title: "Assignment 4"
 author: "Steve Kerr (211924)"
 date: "2023-10-23"
 output: 
-  pdf_document:
-    keep_tex: true
-    citation_package: natbib
-header-includes:
-- \usepackage{booktabs}
-- \usepackage{xcolor}
-
-extra_dependencies: ["hyperref","booktabs"]
-urlcolor: blue
-bibliography: ../presentation-resources/MyLibrary.bib
+  html_document:
+    toc: FALSE
+    df_print: paged
+    number_sections: FALSE
+    highlight: tango
+    theme: lumen
+    toc_depth: 3
+    toc_float: true
+    self_contained: false
 ---
 
 ```{r setup, include=FALSE}
@@ -27,16 +26,23 @@ This time, you will be assessed not only on whether the code gets the right resu
 
 You will also be assessed on the presentation of your results, and on the concision and readability of your code.
 
+> We start by loading our packages.
+
 ```{r}
+# TODO: discard irrelevant packages
 # load packages
 pacman::p_load(
   dplyr, 
+  ggplot2,
+  gt, 
   here,
+  kableExtra,
+  knitr,
   lubridate,
   manifestoR,
   readr,
   tidyr
-  #NMF,
+  #NMF, 
   #quanteda,
   #topicmodels,
   #tidytext,
@@ -49,13 +55,27 @@ pacman::p_load(
 
 Bring together a dataset from the WZB.
 
-```{r, message=FALSE}
-# define countries
-countries <- c("Australia", "Canada", "South Africa", "New Zealand", "United Kingdom", "United States") # English-speaking countries
+What years, countries and parties are included in the dataset? How many texts do you have for each of these?
 
-# load codebook
+> I limit my analysis to the following predominantly English-speaking countries: Australia, Canada, New Zealand, South Africa, the United Kingdom, and the United States. I examine the period from 2000 to 2020 (the latest year for which data are available). Furthermore, I exclude parties with less than three manifestos over the twenty-year period. In total, the analysis includes **twenty-six parties**: Australia (6), Canada (4), New Zealand (7), South Africa (3), the United Kingdom (4), and the United States (2). Our corpus consists of 145 party manifestos.
+
+```{r, message=FALSE}
+# list of English-speaking countries
+countries <- c(
+  "Australia", 
+  "Canada", 
+  "South Africa", 
+  "New Zealand", 
+  "United Kingdom", 
+  "United States"
+  ) 
+
+
+# load WZB Manifesto Project codebook (source: https://manifesto-project.wzb.eu/datasets)
+# TODO: implement mp_maindataset() in place of codebook
+# TODO: does it make sense to use mp_codebook() in place of codebook? Could be used with mp_describe_code("504") to describe WZB codes
 ref_df <- read_csv(here("Assignments_SK/Assignment-4/docs/documents_MPDataset_MPDS2023a.csv")) |> 
-  rename(
+  rename( # choose intuitive var names
     country_id = country, 
     country = countryname, 
     party_id = party, 
@@ -65,29 +85,37 @@ ref_df <- read_csv(here("Assignments_SK/Assignment-4/docs/documents_MPDataset_MP
   filter(country %in% countries) |>
   distinct() 
 
-# define file path for data
+head(ref_df)
+```
+
+
+```{r}
+# define file path for WZB Manifesto Project data
 data_path <- here("Assignments_SK/Assignment-4/data/corpus.rds") 
 
-# download data if not yet downloaded
+# download data if doesn't already exist
 if (!file.exists(data_path)) {
   
   # set API key
   mp_setapikey(here("Assignments_SK/Assignment-4/manifesto_apikey.txt"))
-  
+
   # query data
-  corpus <- mp_corpus(countryname %in% countries & edate > as_date("2000-01-01"))
+  corpus <- mp_corpus(countryname %in% countries & edate > as_date("2000-01-01")) # TODO: implement mp_metadata() for this step
+  # mp_metadata(countryname %in% countries & edate > as_date("2000-01-01")) 
   
   # save data
   saveRDS(corpus, here("Assignments_SK/Assignment-4/data/corpus.rds"))
+  # TODO: implement mp_save_cache(file = "manifesto_cache.RData")
   
 } else {
   
   # load data
   corpus <- read_rds(data_path)
+  # TODO: implement mp_load_cache(file = "manifesto_cache.RData")
   
 }
 
-# # inspect corupus
+# # inspect corpus
 # corpus
 # # explore data
 # head(content(corpus[[1]])) # view beginning of text of first manifesto
@@ -95,9 +123,8 @@ if (!file.exists(data_path)) {
 # meta(corpus[[1]]) # view meta data of first manifesto
 ```
 
-
 ```{r}
-# initialize empty df
+# initialize empty df to store meta data
 meta_df <- tibble()
 
 # for each doc in corpus...
@@ -119,54 +146,35 @@ for (i in seq_along(corpus)) {
     bind_rows(meta_doc)
 }
 
-meta_df |> 
-  knitr::kable()
-```
+head(meta_df)
 
-```{r}
-# combine with codebook
-df <- meta_df |> 
+# wrangle meta data
+meta_df <- meta_df |> 
   filter(
     is.na(is_copy_of), # remove copies
     language == "english" # remove non-English texts
     ) |> 
   select(doc_id = id, doc = title, party_id = party, date) |>
+  group_by(doc_id) |> 
+  filter(n() == 1) |> 
+  ungroup() |> 
   mutate(
     party_id = as.numeric(party_id),
     date = as_date(date, format = "%Y%m"),
     year = year(date)
-    ) |> 
-  left_join(ref_df, by = join_by(party_id)) |> ### many-to-many relationship
+    )
+
+head(meta_df)
+```
+
+```{r}
+# combine meta data with codebook info
+df <- meta_df |> 
+  left_join(ref_df, by = join_by(party_id)) |> ### TODO: many-to-many relationship
   relocate(contains("country"), contains("party"), date, contains("doc")) |> 
   arrange(date) 
 
-df |> 
-  knitr::kable()
-```
-
-What years, countries and parties are included in the dataset? How many texts do you have for each of these?
-
-> We limit our analysis to the following predominantly English-speaking countries: Australia, Canada, New Zealand, South Africa, the United Kingdom, and the United States. We examine the period from 2000 to 2020 (the latest year for which data are available). We exclude parties with less than three manifestos over this twenty-year period. In total, our analysis includes **twenty-six parties**: Australia (6), Canada (4), New Zealand (7), South Africa (3), the United Kingdom (4), and the United States (2).
-
-```{r}
-library(ggplot2)
-
-# plot no. of manifestos by country over time
-ggplot(df, aes(x = year, fill = country)) + # TODO: Implement filtering criteria here too
-  geom_bar() + 
-  scale_fill_brewer(palette = "Paired") + 
-  labs(
-    title = "Party Manifestos",
-    subtitle = "2000-2020",
-    x = NULL,
-    y = "Manifestos",
-    fill = NULL,
-    caption = "source: WZB"
-  ) +
-  scale_x_continuous(breaks = min(df$year):max(df$year)) +
-  scale_y_continuous(breaks = seq(0, 35, 5)) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+head(df)
 ```
 
 ```{r}
@@ -181,12 +189,16 @@ df |>
     y = "No. parties"
     ) +
   theme_minimal()
-  
+
+# drop parties with less than three manifestos between 2000-2020
+df <- df |> 
+  group_by(country, party) |>
+  filter(n() > 3) |> 
+  ungroup()
+
 # table of countries and parties
 df |> 
-  select(country, party) |> 
   count(country, party) |> 
-  filter(n > 3) |> 
   arrange(country, desc(n)) |> 
   select(-n) |> 
   gt(
@@ -196,17 +208,70 @@ df |>
   )
 ```
 
+```{r, fig.height=5}
+# plot number of manifestos by country over time
+df |> 
+  count(year, country) |>
+  ggplot(aes(x = year, y = n, fill = country)) +
+  geom_col() +
+  
+  scale_fill_brewer(palette = "Paired") + 
+  labs(
+    title = "Party Manifestos",
+    subtitle = "2000-2020",
+    x = NULL,
+    y = "Manifestos",
+    fill = NULL,
+    caption = "source: WZB"
+  ) +
+  facet_wrap(~ country, ncol = 1) +
+  scale_x_continuous(breaks = min(df$year):max(df$year)) +
+  scale_y_continuous(breaks = seq(0, 35, 5)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+> We can observe differences in the countries with regularly scheduled election cycles (Australia, New Zealand, South Africa, and the United States) compared to those with parliamentarian systems (Canada and the United Kingdom) (?). The number of party manifestos for each country varies: United States (2)
+
 Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.
 
 > 
 
 ```{r}
-# pre-processing
-dfmat <- corpus |> 
-  tm_map(removePunctuation) |> 
-  tm_map(removeWords, stopwords("english")) |> 
-  TermDocumentMatrix()
-dfmat
+# # list of Manifesto IDs
+# doc_ids <- df$doc_id |> unique()
+# 
+# # initialize empty df to store text data
+# corpus_filtered <- tibble()
+# 
+# # extract texts
+# for (i in 1:length(corpus)) {
+#   
+#   if (meta(corpus[[i]])$manifesto_id %in% doc_ids) { # only include texts we've identified
+#     
+#     #tibble(
+#     #  doc_id = meta(corpus[[i]])$manifesto_id,
+#     #  doc = paste(content(corpus[[i]]))
+#     #)
+#     
+#     
+#   }
+#   
+# }
+# 
+# corpus 
+# doc_subcodes <- subset(doc, codes(doc) %in% c(202, 503, 607))
+# length(doc_subcodes)
+# 
+# library(quanteda)
+# corpus
+# 
+# # pre-processing
+# dfmat <- corpus |> 
+#   tm_map(removePunctuation) |> 
+#   tm_map(removeWords, stopwords("english")) |> 
+#   TermDocumentMatrix()
+# dfmat
 ```
 
 ## 2. Research question
@@ -220,7 +285,23 @@ Describe a research question you want to explore with topic modelling. Comment o
 Create a topic model using your data. Explain to a non-specialist what the topic model does. Comment on the choices you make here in terms of hyperparameter selection and model choice. How might these affect your results and the ability to answer your research question?
 
 ```{r}
+#The definition of a “good” topic is not universal but task dependent.
 
+#A good topic model is one that helps us to answer the research question we have in mind, or helps us to better perform the task we have.
+
+#Sometimes we want the big picture (few topics), sometimes we want fine-grained detail (many topics).
+
+#What we should ensure is that any results we present are not an artefact of an arbitrary model choice we make, but are robust to a variety of reasonable specifications.
+```
+
+```{r}
+# evaluate performance
+#A quick heuristic for naming topics is to concatenate the top 3 terms for each topic.
+#If we want to use our model then we should give meaningful names to topics by inspecting the top terms and top documents associated with each topic.
+
+#Loss/heldout-likelihood based measures work by comparing the topic predictions of words in documents to the actually observed numbers of words in documents.
+
+#Coherence based measures work by assessing whether the words in a topic are similar. If words in a topic only infrequently co-occur in documents, then this topic is considered less coherent.
 ```
 
 ## 4. Topic model description
