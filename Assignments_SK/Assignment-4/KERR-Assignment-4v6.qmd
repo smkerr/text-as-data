@@ -1,0 +1,401 @@
+---
+title: "Assignment 4"
+author: "Steve Kerr (211924)"
+date: "20 November 2023"
+format:
+  html:
+    embed-resources: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+# Introduction
+
+> In this assignment, you are asked to use topic modelling to investigate manifestos from the manifesto project maintained by [WZB](https://manifesto-project.wzb.eu/). You can either use the UK manifestos we looked at together in class, or collect your own set of manifestos by choosing the country/countries, year/years and party/parties you are interested in. You should produce a report which includes your code, that addresses the following aspects of creating a topic model, making sure to answer the questions below.
+>
+> This time, you will be assessed not only on whether the code gets the right result, but on how you understand and communicate your understanding of the modelling process and how this can answer your research question. The best research question is one that is interesting and answerable, but the most important thing is that the research question is answerable with the methods you choose.
+>
+> You will also be assessed on the presentation of your results, and on the concision and readability of your code.
+
+## 1. Data acquisition, description, and preparation
+
+> Bring together a dataset from the WZB. What years, countries and parties are included in the dataset? How many texts do you have for each of these?
+>
+> Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.
+
+I start by loading the necessary packages.
+
+```{r packages}
+# TODO: discard irrelevant packages
+# load packages
+pacman::p_load(
+  dplyr, 
+  ggplot2,
+  here,
+  kableExtra,
+  knitr,
+  lubridate,
+  manifestoR,
+  readr,
+  stm,
+  #tidyr,
+  tidystm,
+  #topicmodels,
+  wordcloud
+  )
+```
+
+I'll be using WZB's `manifestoR` package to download and work with the manifesto data. In order to establish a connection with WZB's API, I first need to set an API key.
+
+```{r api_key}
+# define API key
+mp_setapikey(here("Assignments_SK/Assignment-4/manifesto_apikey.txt"))
+```
+
+This analysis is limited to the **Democratic** and **Republican parties** in the **United States**. I examine the period **from 1960 to 2020** (all years for which data are available). In total, the corpus consists of **32 party manifestos**, with 16 authored by Democrats and 16 authored by Republicans.
+
+Let's start by loading a corpus of relevant manifestos.
+
+```{r load_corpus, message=FALSE}
+# define party IDs
+party_ids <- c(61320, # Democrats  
+               61620) # Republicans
+
+# define file path for corpus
+corpus_path <- here("Assignments_SK/Assignment-4/data/corpus.rds")
+
+# download data if doesn't already exist
+if (!file.exists(corpus_path)) {
+
+  corpus <- mp_corpus(party %in% party_ids, ) # query data 
+  saveRDS(corpus, corpus_path) # save data
+
+} else corpus <- read_rds(corpus_path) # load data
+
+# inspect corpus
+corpus
+
+# view metadata of first manifesto
+NLP::meta(corpus[[1]])
+```
+
+Next, I load metadata for the manifestos in the corpus.
+
+```{r load_metadata, message=FALSE}
+# define file path for metadata
+meta_path <- here("Assignments_SK/Assignment-4/data/meta_data.rds")
+
+# download data if doesn't already exist
+if (!file.exists(meta_path)) {
+
+  meta_df <- mp_metadata(party %in% party_ids) # query data 
+  saveRDS(meta_df, meta_path) # save data
+
+} else meta_df <- read_rds(meta_path) # load data
+
+kable(head(meta_df))
+```
+
+Additionally, I'll load the main dataset which contains supplemental metadata such as party name (currently our data only includes party ID numbers).
+
+```{r load_main_data}
+# define file path for main dataset
+main_dataset_path <- here("Assignments_SK/Assignment-4/data/main_data.rds")
+
+# download data if doesn't already exist
+if (!file.exists(main_dataset_path)) {
+  
+  main_df <- mp_maindataset() # query data
+  main_df <- main_df |> filter(party %in% party_ids) # prepare data
+  saveRDS(main_df, main_dataset_path) # save data
+  
+} else main_df <- read_rds(main_dataset_path) # load data
+
+kable(head(main_df))
+```
+
+Once the data have been loaded, the text data then needs to be transformed into a format which is ready for analysis. While most of the manifestos in the corpus contain just one row with all of the text stored in a single value, texts which have been annotated contain many rows, each corresponding with a complete thought (e.g., sentence or clause). Though these annotations may be relevant to other contexts, we will disregard them for this analysis. The code below addresses this by wrangling the data into a format where each manifesto corresponds with only one row.
+
+```{r wrangle_data}
+# wrangle data
+text_df <- data.frame()
+
+for (i in 1:length(corpus)) {
+  
+  doc <- as.data.frame(corpus[[i]], with.meta = TRUE)
+  
+  if (TRUE %in% doc$annotations) {
+    
+    doc <- data.frame(
+      text = paste(c(doc$text), collapse = " "), 
+      manifesto_id = unique(doc$manifesto_id),
+      party = unique(doc$party),
+      year = year(ym(unique(doc$date))),
+      title = unique(doc$title)
+      )
+    
+  } else {
+   
+     doc <- doc |> 
+       mutate(year = year(ym(date))) |> 
+       select(text, manifesto_id, party, year, title)
+  
+  }
+
+  text_df <- bind_rows(text_df, doc)
+  
+}
+
+# add party name info
+text_df <- left_join(text_df, distinct(main_df, party, partyname))
+```
+
+Now on to pre-processing. For this step, we will make use of `stm`'s `textProcessor` function. Note that our pre-processing pipeline involves *lowercasing* words, *removing stop words*, *removing numbers*, *removing punctuation*, and *stemming* words (i.e., reducing words to their root form) so as "de-noise" the data. Note that several words including "will", "must", and "shall" have been added to the list of stop words as they appear extremely frequently throughout the manifestos but do not contain much valuable information in and of themselves. As a result, we intentionally discard them from our analysis.
+
+```{r preprocessing}
+# pre-processing
+processed <- textProcessor(
+  documents = text_df$text, 
+  metadata = select(text_df, -text),
+  lowercase = TRUE,
+  removestopwords = TRUE,
+  removenumbers = TRUE,
+  removepunctuation = TRUE,
+  stem = TRUE,
+  language = "en",
+  customstopwords = c("will", "must", "shall"), # remove custom stop words
+  verbose = TRUE
+  )
+```
+
+Next, the `prepDocuments` function conveniently prepares our texts for analysis. At this stage, terms which appear infrequently across manifestos are also removed to further "de-noise" the data. Doing so will allow us to focus more attention on terms that persist in both parties' manifestos throughout the study period. To determine precisely where to set this minimum frequency threshold, `stm`'s `plotRemoved` function comes in handy by allowing us to plot the number of words and documents removed at different thresholds.
+
+```{r min_freq_plot, fig.align='center', out.width='100%'}
+# plot words and docs removed at different thresholds
+plotRemoved(processed$documents, lower.thresh = seq(1, 50, by = 5))
+```
+
+Based on the plot above, setting `lower.thresh = 30` will result in all words and manifestos being discarded. At the same time, proceeding with our analysis without implementing some sort of minimum frequency threshold will result in the inclusion of terms which may not in fact contribute to our analysis. Given this, it seems reasonable to set the minimum frequency threshold equal to some number well below thirty.
+
+```{r prep_docs}
+# prepare docs for topic modeling
+out <- prepDocuments(
+  documents = processed$documents, 
+  vocab = processed$vocab, 
+  meta = processed$meta,
+  lower.thresh = 10 # min term frequency
+  ) 
+```
+
+Our processed text is now contained in the `out$docs` variable, our complete vocabulary of stemmed words is now stored in the `out$vocab` variable, and our metadata with information on the party, year, and title associated with a given manifesto can be found in the `out$meta` variable.
+
+```{r prepped_docs}
+sample(out$vocab, 10) # inspect random sample of vocab
+kable(head(out$meta)) # inspect metadata
+```
+
+## 2. Research question
+
+> Describe a research question you want to explore with topic modelling. Comment on how answerable this is with the methods and data at your disposal.
+
+While there is plenty of research documenting the ways in which the Democratic and Republican parties have become increasingly polarized in recent decades, I am interested in applying topic modeling to assess whether this polarization is reflected in the parties' manifestos. Put more concretely: **Does the amount of text that Democratic and Republican parties dedicate towards various topics in their party manifestos diverge over time?**
+
+## 3. Topic model development
+
+> Create a topic model using your data. Explain to a non-specialist what the topic model does. Comment on the choices you make here in terms of hyperparameter selection and model choice. How might these affect your results and the ability to answer your research question?
+
+I use the `stm` package to estimate a structural topic model. Metadata covariates for topic prevalence allow the observed metadata to affect the frequency with which a topic is discussed. For this analysis, `party` is a covariate in the topic prevalence portion of the model. Each document is modeled as a mixture of multiple topics. Topical prevalence captures how much each topic contributes to a document. Because different documents come from different sources, it is natural to want to allow this prevalence to vary with metadata that we have about document sources. Prevalence is a function of the `party` variable (either "Democratic Party" or "Republican Party") as well as the `year` variable. I estimate a **XX** topic STM model. Variables are included additively. While this may not be the most sophisticated model for answering our question, it should provide an indication of whether the hypothesis is reasonable.
+
+```{r search_k, fig.align='center', fig.out='100%'}
+search_results <- searchK(
+  documents = out$documents, 
+  vocab = out$vocab, 
+  data = out$meta,
+  K = seq(10, 30, 5),
+  prevalence = ~ partyname + year,
+  verbose = FALSE,
+  heldout.seed = 10
+  )
+
+plot.searchK(search_results)
+```
+
+For the sake of this exercise, we'll look to maximize the semantic coherence which appears to peak when the number of topics `K = 20` . Year is modeled linearly for simplicity.
+
+```{r topic_model, warning=FALSE}
+# define number of topics
+n_topics <- 20
+
+# create topic model
+topic_model <- stm(
+  documents = out$documents, 
+  vocab = out$vocab,
+  data = out$meta, 
+  K = n_topics, # number of latent topics
+  prevalence = ~ partyname + year,
+  init.type = "Spectral", # spectral initialization
+  verbose = FALSE
+  )
+```
+
+## 4. Topic model description
+
+> Describe the topic model. What topics does it contain? How are these distributed across the data?
+
+To better understand the topic model, we can look at which words are associated with each topic. While there are several methods for determining which words are most representative of a given topic, I use the FREX method which weights words by their overall frequency as well as how exclusive they are to a given topic. This should prevent words which appear very often across all texts (e.g., "america", "presid", "govern") from dominating our list of words.
+
+The plot below shows the expected proportion of the corpus belonging to each topic. As such, topic 12 appears to be the topic most commonly discussed in party manifestos.
+
+We can also see how Democrats and Republicans talk about these topics differently. We can also plot word clouds of the words most likely to occur in a party manifesto related to various topics.
+
+```{r word_assoc, fig.align='center', out.width='100%', out.height='100%'}
+# top words per topic
+plot.STM(topic_model, type = "labels", n = 5, labeltype = "frex")
+
+# create topic labels
+topic_labels <- c()
+
+# plot top topics
+plot(topic_model, type = "summary", labeltype = "frex", n = 5, xlim = c(0, .3))
+
+# compare words between topics
+plot.STM(topic_model, type = "perspectives", topics = c(1, 2), covarlevels = c())
+
+# wordcloud 
+cloud(topic_model, topic = 3, scale = c(2, .25))
+```
+
+```{r}
+# We use the Dirichlet distribution to allocate the words of the manifestos to different topics. "Texts do not require any prior annotations or labeling of the documents—the topics emerge from the analysis of the original texts". The idea is that "Documents exhibit multiple topics" Topic = a distribution over a fixed vocabulary. Each document exhibits the topics in different proportion (step #1); each word in each document is drawn from one of the topics (step #2b), where the selected topic is chosen from the per-document distribution over topics (step #2a). All the documents in the collection share the same set of topics, but each document exhibits those topics in different proportion. what is the hidden structure that likely generated the observed collection?
+
+#The definition of a “good” topic is not universal but task dependent.
+
+#A good topic model is one that helps us to answer the research question we have in mind, or helps us to better perform the task we have.
+
+#Sometimes we want the big picture (few topics), sometimes we want fine-grained detail (many topics).
+
+#What we should ensure is that any results we present are not an artefact of an arbitrary model choice we make, but are robust to a variety of reasonable specifications.
+
+# evaluate performance
+#A quick heuristic for naming topics is to concatenate the top 3 terms for each topic.
+#If we want to use our model then we should give meaningful names to topics by inspecting the top terms and top documents associated with each topic.
+
+#Loss/heldout-likelihood based measures work by comparing the topic predictions of words in documents to the actually observed numbers of words in documents.
+
+#Coherence based measures work by assessing whether the words in a topic are similar. If words in a topic only infrequently co-occur in documents, then this topic is considered less coherent.
+```
+
+## 5. Answering your research question
+
+> Use your topic model to answer your research question by showing plots or statistical results. Discuss the implications of what you find, and any limitations inherent in your approach. Discuss how the work could be improved upon in future research.
+
+We can estimate relationships between metadata and topics using `estimateEffect`. We use a first difference type estimate where topic prevalence for a given topic is contrasted between Democrat and Republican manifestos. We plot the change in topic proportion that comes with shifting from one party to the other. We can also plot the prevalence of topics over time.
+
+```{r estimate_effect, warning=FALSE, fig.align='center', out.width='100%'}
+# estimate effect
+estim <- estimateEffect(
+  formula = 1:n_topics ~ partyname + year,  
+  stmobj = topic_model,  
+  metadata = out$meta,
+  uncertainty = "Global" # account for topic proportions
+  )
+
+# regression table
+summary(estim, topics = 1)
+
+# plot difference in topic prevalence by party
+plot.estimateEffect(
+  estim, 
+  covariate = "partyname",
+  method = "difference", 
+  cov.value1 = "Democratic Party", 
+  cov.value2 = "Republican Party", 
+  main = NULL,
+  xlab = "Democratic Party  . . .  Republican Party",
+  xlim = c(-0.5, 0.5),
+  ylim = c(0, 15),
+  #labeltype = "custom",
+  #custom.labels = topic_labels,
+  verbose.labels = FALSE
+  )
+```
+
+We can calculate correlation between topics using `topicCorr`. Positive correlations indicate that two topics are likely to co-occur in the same manifesto. We can then plot a graph showing connections between topics.
+
+```{r topic_corr, fig.align='center', out.width='100%'}
+mod.out.corr <- topicCorr(topic_model)
+plot(mod.out.corr)
+```
+
+```{r, eval=FALSE}
+toLDAvis(
+  topic_model,
+  out$documents,
+  R = 30,
+  plot.opts = list(xlab = "PC1", ylab = "PC2"),
+  lambda.step = 0.1,
+  out.dir = tempfile(),
+  open.browser = interactive(),
+  as.gist = FALSE,
+  reorder.topics = TRUE
+)
+
+#![LDAvis](img/lda-vis.png){width=100%} 
+```
+
+```{r plot_effects, fig.align='center', out.width='100%', out.height='100%'}
+effect <- extract.estimateEffect(
+  estim,
+  covariate = "partyname",
+  model = topic_model, 
+  method = "pointestimate"
+)
+
+## Lets extract the estimates in a tidy format so that we can plot it
+## ourselves. We can now use lapply instead to first run it with
+## moderator.value 0 and then with moderator.value 1, and then bind
+## the two data frames together.
+effect <- lapply(c("Democratic Party", "Republican Party"), function(i) {
+  extract.estimateEffect(estim,
+                         covariate = "year",
+                         method = "continuous",
+                         model = topic_model,
+                         labeltype = "frex",
+                         n = 5,
+                         moderator = "partyname",
+                         moderator.value = i)
+})
+effect <- do.call("rbind", effect)
+
+## And, for example, plot it with ggplot2 and facet by topic instead.
+library(ggplot2)
+
+ggplot(effect, aes(x = covariate.value, y = estimate,
+                   ymin = ci.lower, ymax = ci.upper,
+                   group = moderator.value,
+                   fill = factor(moderator.value))) +
+  facet_wrap(~ label, nrow = 5) +
+  geom_ribbon(alpha = .5) +
+  geom_line() +
+  labs(x = NULL,
+       y = "Expected Topic Proportion",
+       fill = NULL) +
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+
+# Sources
+
+-   Lehmann, Pola / Franzmann, Simon / Burst, Tobias / Regel, Sven / Riethmüller, Felicia / Volkens, Andrea / Weßels, Bernhard / Zehnter, Lisa (2023): The Manifesto Data Collection. Manifesto Project (MRG/CMP/MARPOR). Version 2023a. Berlin: Wissenschaftszentrum Berlin für Sozialforschung (WZB) / Göttingen: Institut für Demokratieforschung (IfDem). <https://doi.org/10.25522/manifesto.mpds.2023a>
+
+# Resources
+
+-   <https://www.cs.columbia.edu/~blei/papers/Blei2012.pdf>
+-   [`manifestoR` vignette](https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf)
+-   <https://manifesto-project.wzb.eu/tutorials/primer>
+-   <https://manifesto-project.wzb.eu/tutorials/main-dataset>
+-   <https://manifesto-project.wzb.eu/tutorials/firststepsmanifestoR>
+-   <https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf>
+-   <https://github.com/mikajoh/tidystm>

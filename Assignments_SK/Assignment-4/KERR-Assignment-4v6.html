@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Steve Kerr (211924)">
+<meta name="dcterms.date" content="2023-11-20">
+
+<title>Assignment 4</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="KERR-Assignment-4v6_files/libs/clipboard/clipboard.min.js"></script>
+<script src="KERR-Assignment-4v6_files/libs/quarto-html/quarto.js"></script>
+<script src="KERR-Assignment-4v6_files/libs/quarto-html/popper.min.js"></script>
+<script src="KERR-Assignment-4v6_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="KERR-Assignment-4v6_files/libs/quarto-html/anchor.min.js"></script>
+<link href="KERR-Assignment-4v6_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="KERR-Assignment-4v6_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="KERR-Assignment-4v6_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="KERR-Assignment-4v6_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="KERR-Assignment-4v6_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Assignment 4</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Steve Kerr (211924) </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 20, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<blockquote class="blockquote">
+<p>In this assignment, you are asked to use topic modelling to investigate manifestos from the manifesto project maintained by <a href="https://manifesto-project.wzb.eu/">WZB</a>. You can either use the UK manifestos we looked at together in class, or collect your own set of manifestos by choosing the country/countries, year/years and party/parties you are interested in. You should produce a report which includes your code, that addresses the following aspects of creating a topic model, making sure to answer the questions below.</p>
+<p>This time, you will be assessed not only on whether the code gets the right result, but on how you understand and communicate your understanding of the modelling process and how this can answer your research question. The best research question is one that is interesting and answerable, but the most important thing is that the research question is answerable with the methods you choose.</p>
+<p>You will also be assessed on the presentation of your results, and on the concision and readability of your code.</p>
+</blockquote>
+<section id="data-acquisition-description-and-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="data-acquisition-description-and-preparation">1. Data acquisition, description, and preparation</h2>
+<blockquote class="blockquote">
+<p>Bring together a dataset from the WZB. What years, countries and parties are included in the dataset? How many texts do you have for each of these?</p>
+<p>Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.</p>
+</blockquote>
+<p>I start by loading the necessary packages.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: discard irrelevant packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  dplyr, </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  ggplot2,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  here,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  kableExtra,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  knitr,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  lubridate,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  manifestoR,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  readr,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  stm,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">#tidyr,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  tidystm,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="co">#topicmodels,</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  wordcloud</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>I’ll be using WZB’s <code>manifestoR</code> package to download and work with the manifesto data. In order to establish a connection with WZB’s API, I first need to set an API key.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define API key</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mp_setapikey</span>(<span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/manifesto_apikey.txt"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This analysis is limited to the <strong>Democratic</strong> and <strong>Republican parties</strong> in the <strong>United States</strong>. I examine the period <strong>from 1960 to 2020</strong> (all years for which data are available). In total, the corpus consists of <strong>32 party manifestos</strong>, with 16 manifestos for both parties.</p>
+<p>Let’s start by loading a corpus of relevant manifestos.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define party IDs</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>party_ids <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">61320</span>, <span class="co"># Democrats  </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               <span class="dv">61620</span>) <span class="co"># Republicans</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for corpus</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>corpus_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/corpus.rds"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(corpus_path)) {</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  corpus <span class="ot">&lt;-</span> <span class="fu">mp_corpus</span>(party <span class="sc">%in%</span> party_ids, ) <span class="co"># query data </span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(corpus, corpus_path) <span class="co"># save data</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> corpus <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(corpus_path) <span class="co"># load data</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect corpus</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;&lt;ManifestoCorpus&gt;&gt;
+Metadata:  corpus specific: 0, document level (indexed): 0
+Content:  documents: 32</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view meta data of first manifesto</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>NLP<span class="sc">::</span><span class="fu">meta</span>(corpus[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  manifesto_id               : 61320_196011
+  party                      : 61320
+  date                       : 196011
+  language                   : english
+  source                     : CEMP
+  has_eu_code                : FALSE
+  is_primary_doc             : TRUE
+  may_contradict_core_dataset: FALSE
+  md5sum_text                : 02b852eaf10861fb50a83c68f47ae9c5
+  url_original               : NA
+  md5sum_original            : NA
+  annotations                : FALSE
+  handbook                   : NA
+  is_copy_of                 : NA
+  title                      : Democratic Party Platform 1960
+  id                         : 61320_196011</code></pre>
+</div>
+</div>
+<p>Next, I load metadata for the manifestos in the corpus.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for meta data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>meta_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/meta_data.rds"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(meta_path)) {</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> <span class="fu">mp_metadata</span>(party <span class="sc">%in%</span> party_ids) <span class="co"># query data </span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(meta_df, meta_path) <span class="co"># save data</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> meta_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(meta_path) <span class="co"># load data</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(meta_df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">party</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">date</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">language</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">source</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">has_eu_code</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">is_primary_doc</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">may_contradict_core_dataset</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">manifesto_id</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">md5sum_text</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">url_original</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">md5sum_original</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">annotations</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">handbook</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">is_copy_of</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">title</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">61320</td>
+<td style="text-align: right;">192011</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">/down/originals/2015-1/61320_1920.pdf</td>
+<td style="text-align: left;">6ca3564157d2420e46a7c380db13fe92</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Democratic Platform of 1920</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">61620</td>
+<td style="text-align: right;">192011</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">/down/originals/2015-1/61620_1920.pdf</td>
+<td style="text-align: left;">1be10fd0a030726c160c34df78d6f408</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Republican Platform of 1920</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">61320</td>
+<td style="text-align: right;">192411</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">/down/originals/2015-1/61320_1924.pdf</td>
+<td style="text-align: left;">3dadf07c38b4b2d781f6f9a6cf09ce2b</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Democratic Platform of 1924</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">61620</td>
+<td style="text-align: right;">192411</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">/down/originals/2015-1/61620_1924.pdf</td>
+<td style="text-align: left;">ace8829d7fc9c8c6ddff181f4ca6751d</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Republican Platform of 1924</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">61320</td>
+<td style="text-align: right;">192811</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">/down/originals/2015-1/61320_1928.pdf</td>
+<td style="text-align: left;">ec9ef2b44b52b05bde5be3acf1656428</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Democratic Platform for 1928</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">61620</td>
+<td style="text-align: right;">192811</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">/down/originals/2015-1/61620_1928.pdf</td>
+<td style="text-align: left;">75f92f357e79024d5e588620a3662982</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Republican Platform of 1928</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>Additionally, I’ll load the main dataset which contains supplemental metadata for the manifestos such as party name. All three data sources will be relevant to the analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for main dataset</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>main_dataset_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/main_data.rds"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(main_dataset_path)) {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  main_df <span class="ot">&lt;-</span> <span class="fu">mp_maindataset</span>() <span class="co"># query data</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  main_df <span class="ot">&lt;-</span> main_df <span class="sc">|&gt;</span> <span class="fu">filter</span>(party <span class="sc">%in%</span> party_ids) <span class="co"># prepare data</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(main_df, main_dataset_path) <span class="co"># save data</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> main_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(main_dataset_path) <span class="co"># load data</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(main_df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">country</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">countryname</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">oecdmember</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">eumember</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">edate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">date</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">party</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">partyname</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">partyabbrev</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">parfam</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">candidatename</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">coderid</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">manual</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">coderyear</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">testresult</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">testeditsim</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">pervote</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">voteest</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">presvote</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">absseat</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">totseats</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">progtype</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">datasetorigin</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">corpusversion</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">total</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">peruncod</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per101</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per102</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per103</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per104</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per105</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per106</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per107</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per108</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per109</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per110</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per201</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per202</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per203</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per204</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per301</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per302</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per303</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per304</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per305</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per401</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per402</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per403</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per404</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per405</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per406</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per407</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per408</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per409</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per410</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per411</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per412</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per413</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per414</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per415</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per416</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per501</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per502</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per503</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per504</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per505</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per506</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per507</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per601</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per602</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per603</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per604</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per605</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per606</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per607</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per608</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per701</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per702</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per703</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per704</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per705</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per706</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1011</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1012</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1013</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1014</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1015</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1016</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1021</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1022</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1023</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1024</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1025</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1026</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1031</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1032</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per1033</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per2021</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per2022</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per2023</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per2031</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per2032</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per2033</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per2041</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per3011</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per3051</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per3052</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per3053</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per3054</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per3055</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4011</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4012</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4013</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4014</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4121</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4122</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4123</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4124</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4131</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per4132</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per5021</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per5031</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per5041</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per5061</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per6011</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per6012</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per6013</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per6014</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per6061</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per6071</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per6072</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per6081</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per7051</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per7052</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per7061</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per7062</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per103_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per103_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per201_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per201_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per202_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per202_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per202_3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per202_4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per305_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per305_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per305_3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per305_4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per305_5</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per305_6</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per416_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per416_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per601_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per601_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per602_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per602_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per605_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per605_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per606_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per606_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per607_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per607_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per607_3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per608_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per608_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per608_3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per703_1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">per703_2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">rile</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">planeco</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">markeco</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">welfare</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">intpeace</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">datasetversion</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">id_perm</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">61</td>
+<td style="text-align: left;">United States</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">1920-11-02</td>
+<td style="text-align: right;">192011</td>
+<td style="text-align: right;">61320</td>
+<td style="text-align: left;">Democratic Party</td>
+<td style="text-align: left;">Democrats</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1981</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">35.7</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">34.2</td>
+<td style="text-align: right;">131</td>
+<td style="text-align: right;">435</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">242</td>
+<td style="text-align: right;">7.025</td>
+<td style="text-align: right;">2.893</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.306</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.826</td>
+<td style="text-align: right;">7.851</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.826</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.240</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.132</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.959</td>
+<td style="text-align: right;">2.479</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.479</td>
+<td style="text-align: right;">0.826</td>
+<td style="text-align: right;">3.306</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">2.893</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.826</td>
+<td style="text-align: right;">7.851</td>
+<td style="text-align: right;">4.132</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7.851</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.479</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">1.653</td>
+<td style="text-align: right;">0.413</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.826</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">3.306</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7.438</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">9.091</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">7.438</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-9.917</td>
+<td style="text-align: right;">7.438</td>
+<td style="text-align: right;">10.331</td>
+<td style="text-align: right;">2.066</td>
+<td style="text-align: right;">0.826</td>
+<td style="text-align: left;">2023a</td>
+<td style="text-align: left;">R2XX9S</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">61</td>
+<td style="text-align: left;">United States</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">1920-11-02</td>
+<td style="text-align: right;">192011</td>
+<td style="text-align: right;">61620</td>
+<td style="text-align: left;">Republican Party</td>
+<td style="text-align: left;">Republicans</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1981</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">58.2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">60.3</td>
+<td style="text-align: right;">303</td>
+<td style="text-align: right;">435</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">274</td>
+<td style="text-align: right;">6.934</td>
+<td style="text-align: right;">0.730</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.365</td>
+<td style="text-align: right;">4.015</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.650</td>
+<td style="text-align: right;">2.190</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6.569</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.555</td>
+<td style="text-align: right;">1.460</td>
+<td style="text-align: right;">4.380</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.730</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">10.584</td>
+<td style="text-align: right;">0.365</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.285</td>
+<td style="text-align: right;">0.730</td>
+<td style="text-align: right;">1.460</td>
+<td style="text-align: right;">0.365</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.365</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">3.285</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.095</td>
+<td style="text-align: right;">3.285</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5.839</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.380</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.825</td>
+<td style="text-align: right;">4.015</td>
+<td style="text-align: right;">0.365</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5.109</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.095</td>
+<td style="text-align: right;">3.285</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.920</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.015</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.365</td>
+<td style="text-align: right;">8.394</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">13.869</td>
+<td style="text-align: right;">1.825</td>
+<td style="text-align: right;">9.124</td>
+<td style="text-align: right;">5.839</td>
+<td style="text-align: right;">3.650</td>
+<td style="text-align: left;">2023a</td>
+<td style="text-align: left;">2D829W</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">61</td>
+<td style="text-align: left;">United States</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">1924-11-04</td>
+<td style="text-align: right;">192411</td>
+<td style="text-align: right;">61320</td>
+<td style="text-align: left;">Democratic Party</td>
+<td style="text-align: left;">Democrats</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1981</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">39.9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">28.8</td>
+<td style="text-align: right;">184</td>
+<td style="text-align: right;">435</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">272</td>
+<td style="text-align: right;">10.294</td>
+<td style="text-align: right;">1.471</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.471</td>
+<td style="text-align: right;">0.735</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.676</td>
+<td style="text-align: right;">3.676</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.471</td>
+<td style="text-align: right;">2.574</td>
+<td style="text-align: right;">0.368</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.779</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.574</td>
+<td style="text-align: right;">12.132</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.368</td>
+<td style="text-align: right;">2.941</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.941</td>
+<td style="text-align: right;">4.044</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.103</td>
+<td style="text-align: right;">6.250</td>
+<td style="text-align: right;">0.368</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.574</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5.882</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">5.882</td>
+<td style="text-align: right;">2.206</td>
+<td style="text-align: right;">0.368</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.368</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.206</td>
+<td style="text-align: right;">0.735</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.044</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">9.191</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">3.309</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-8.824</td>
+<td style="text-align: right;">3.309</td>
+<td style="text-align: right;">2.574</td>
+<td style="text-align: right;">8.088</td>
+<td style="text-align: right;">3.676</td>
+<td style="text-align: left;">2023a</td>
+<td style="text-align: left;">1YK8PA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">61</td>
+<td style="text-align: left;">United States</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">1924-11-04</td>
+<td style="text-align: right;">192411</td>
+<td style="text-align: right;">61620</td>
+<td style="text-align: left;">Republican Party</td>
+<td style="text-align: left;">Republicans</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1981</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">55.9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">54.1</td>
+<td style="text-align: right;">247</td>
+<td style="text-align: right;">435</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">262</td>
+<td style="text-align: right;">10.305</td>
+<td style="text-align: right;">2.672</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.527</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5.725</td>
+<td style="text-align: right;">5.344</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.290</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.763</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.382</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.763</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">8.015</td>
+<td style="text-align: right;">3.435</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.053</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.145</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.962</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">5.725</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.145</td>
+<td style="text-align: right;">3.053</td>
+<td style="text-align: right;">1.145</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.053</td>
+<td style="text-align: right;">0.382</td>
+<td style="text-align: right;">1.145</td>
+<td style="text-align: right;">0.763</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.145</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.763</td>
+<td style="text-align: right;">0.763</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.817</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">10.687</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.527</td>
+<td style="text-align: right;">4.962</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-4.962</td>
+<td style="text-align: right;">2.290</td>
+<td style="text-align: right;">12.595</td>
+<td style="text-align: right;">1.908</td>
+<td style="text-align: right;">5.725</td>
+<td style="text-align: left;">2023a</td>
+<td style="text-align: left;">HO9FS1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">61</td>
+<td style="text-align: left;">United States</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">1928-11-06</td>
+<td style="text-align: right;">192811</td>
+<td style="text-align: right;">61320</td>
+<td style="text-align: left;">Democratic Party</td>
+<td style="text-align: left;">Democrats</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1981</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">41.5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">40.8</td>
+<td style="text-align: right;">166</td>
+<td style="text-align: right;">435</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">275</td>
+<td style="text-align: right;">6.545</td>
+<td style="text-align: right;">0.727</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.545</td>
+<td style="text-align: right;">0.364</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: right;">0.364</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.727</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.818</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: right;">1.091</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: right;">6.182</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7.273</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">5.455</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.727</td>
+<td style="text-align: right;">2.545</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">5.818</td>
+<td style="text-align: right;">1.455</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.545</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5.455</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">3.273</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.091</td>
+<td style="text-align: right;">0.364</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7.636</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12.364</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.364</td>
+<td style="text-align: right;">5.091</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-13.091</td>
+<td style="text-align: right;">6.909</td>
+<td style="text-align: right;">9.818</td>
+<td style="text-align: right;">6.909</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: left;">2023a</td>
+<td style="text-align: left;">E5Z7JT</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">61</td>
+<td style="text-align: left;">United States</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">1928-11-06</td>
+<td style="text-align: right;">192811</td>
+<td style="text-align: right;">61620</td>
+<td style="text-align: left;">Republican Party</td>
+<td style="text-align: left;">Republicans</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1981</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">56.6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">58.2</td>
+<td style="text-align: right;">268</td>
+<td style="text-align: right;">435</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">330</td>
+<td style="text-align: right;">6.970</td>
+<td style="text-align: right;">5.152</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.606</td>
+<td style="text-align: right;">0.909</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.030</td>
+<td style="text-align: right;">2.424</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.030</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.606</td>
+<td style="text-align: right;">0.909</td>
+<td style="text-align: right;">1.515</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.242</td>
+<td style="text-align: right;">3.333</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.727</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.727</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.848</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">3.939</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.121</td>
+<td style="text-align: right;">5.758</td>
+<td style="text-align: right;">0.909</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6.364</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6.667</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.818</td>
+<td style="text-align: right;">0.303</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.909</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.515</td>
+<td style="text-align: right;">0.606</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.242</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">10.606</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: right;">3.939</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-4.848</td>
+<td style="text-align: right;">3.636</td>
+<td style="text-align: right;">9.091</td>
+<td style="text-align: right;">2.121</td>
+<td style="text-align: right;">3.030</td>
+<td style="text-align: left;">2023a</td>
+<td style="text-align: left;">Y6BLD9</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>Once the data has been loaded, the text data then needs to be transformed into a format which is ready for analysis. While most of the manifestos in the corpus contain just one row with all of the text stored as a single value, those texts which have been annotated contain many rows, each corresponding with a complete thought (e.g., sentence or clause). Though these annotations may be relevant in other contexts, they will not be relevant to this analysis. The code below wrangles the data into a format where each manifesto corresponds with only one row.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wrangle data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>text_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(corpus)) {</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  doc <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(corpus[[i]], <span class="at">with.meta =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="cn">TRUE</span> <span class="sc">%in%</span> doc<span class="sc">$</span>annotations) {</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    doc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">text =</span> <span class="fu">paste</span>(<span class="fu">c</span>(doc<span class="sc">$</span>text), <span class="at">collapse =</span> <span class="st">" "</span>), </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">manifesto_id =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>manifesto_id),</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">party =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>party),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">year =</span> <span class="fu">year</span>(<span class="fu">ym</span>(<span class="fu">unique</span>(doc<span class="sc">$</span>date))),</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>title)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>     doc <span class="ot">&lt;-</span> doc <span class="sc">|&gt;</span> </span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>       <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(<span class="fu">ym</span>(date))) <span class="sc">|&gt;</span> </span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>       <span class="fu">select</span>(text, manifesto_id, party, year, title)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  text_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(text_df, doc)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="co"># add party name info</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>text_df <span class="ot">&lt;-</span> <span class="fu">left_join</span>(text_df, <span class="fu">distinct</span>(main_df, party, partyname))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now on to pre-processing. For this step, I make use of <code>stm</code>’s <code>textProcessor</code>. Note that the pre-processing pipeline involves <em>lowercasing</em> words, <em>removing stop words</em>, <em>removing numbers</em>, <em>removing punctuation</em>, and <em>stemming</em> words (reducing words to their root form) so as “de-noise” the data. Note that “will” and “must” have been added to the list of stop words, as…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pre-processing</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>processed <span class="ot">&lt;-</span> <span class="fu">textProcessor</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> text_df<span class="sc">$</span>text, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">metadata =</span> <span class="fu">select</span>(text_df, <span class="sc">-</span>text),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lowercase =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">removestopwords =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">removenumbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">removepunctuation =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">stem =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">language =</span> <span class="st">"en"</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">customstopwords =</span> <span class="fu">c</span>(<span class="st">"will"</span>, <span class="st">"must"</span>, <span class="st">"shall"</span>), <span class="co"># </span><span class="al">TODO</span><span class="co">: add comment </span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">TRUE</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Building corpus... 
+Converting to Lower Case... 
+Removing punctuation... 
+Removing stopwords... 
+Remove Custom Stopwords...
+Removing numbers... 
+Stemming... 
+Creating Output... </code></pre>
+</div>
+</div>
+<p>Next, <code>prepDocuments</code> conveniently prepares the texts for analysis. At this stage, terms which appear infrequently are also removed to further “de-noise” the data. To determine precisely where to set this minimum threshold, <code>stm</code>’s <code>plotRemoved</code> function comes in handy by allowing the user to plot the number of words and documents removed for different thresholds.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot words and docs removed at different thresholds</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRemoved</span>(processed<span class="sc">$</span>documents, <span class="at">lower.thresh =</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="dv">50</span>, <span class="at">by =</span> <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/min_freq_plot-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Based on the plot, it is apparent that setting <code>lower.thresh = 30</code> will result in all manifestos and words being discarded. At the same time, proceeding without a threshold will result in the inclusion of terms which may not in fact contribute to the analysis. Given this, some number below thirty seems reasonable in this context.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare docs for topic modeling</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">prepDocuments</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> processed<span class="sc">$</span>documents, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> processed<span class="sc">$</span>vocab, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">meta =</span> processed<span class="sc">$</span>meta,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower.thresh =</span> <span class="dv">10</span> <span class="co"># min term frequency</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Removing 9905 of 12523 terms (26114 of 83173 tokens) due to frequency 
+Your corpus now has 32 documents, 2618 terms and 57059 tokens.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>docs <span class="ot">&lt;-</span> out<span class="sc">$</span>documents</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>vocab <span class="ot">&lt;-</span> out<span class="sc">$</span>vocab</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>meta <span class="ot">&lt;-</span> out<span class="sc">$</span>meta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The processed text is now contained in a variable called <code>docs</code>, the complete vocabulary is of stemmed words is now stored in a variable called <code>vocab</code>, and the metadata with information on the party, year, and title associated with a given manifesto can be found in a variable called <code>meta</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(vocab, <span class="dv">10</span>) <span class="co"># random sample of vocab</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "staf"       "racism"     "neglect"    "cyprus"     "tenur"     
+ [6] "intellectu" "fit"        "reinvigor"  "spous"      "constant"  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(meta)) <span class="co"># inspect metadata</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">manifesto_id</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">party</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">year</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">title</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">partyname</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">61320_196011</td>
+<td style="text-align: right;">61320</td>
+<td style="text-align: right;">1960</td>
+<td style="text-align: left;">Democratic Party Platform 1960</td>
+<td style="text-align: left;">Democratic Party</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">61620_196011</td>
+<td style="text-align: right;">61620</td>
+<td style="text-align: right;">1960</td>
+<td style="text-align: left;">Republican Party Platform 1960</td>
+<td style="text-align: left;">Republican Party</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">61320_196411</td>
+<td style="text-align: right;">61320</td>
+<td style="text-align: right;">1964</td>
+<td style="text-align: left;">Democratic Party Platform 1964</td>
+<td style="text-align: left;">Democratic Party</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">61620_196411</td>
+<td style="text-align: right;">61620</td>
+<td style="text-align: right;">1964</td>
+<td style="text-align: left;">Republican Party Platform 1964</td>
+<td style="text-align: left;">Republican Party</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">61320_196811</td>
+<td style="text-align: right;">61320</td>
+<td style="text-align: right;">1968</td>
+<td style="text-align: left;">Democratic Party Platform 1968</td>
+<td style="text-align: left;">Democratic Party</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">61620_196811</td>
+<td style="text-align: right;">61620</td>
+<td style="text-align: right;">1968</td>
+<td style="text-align: left;">Republican Party Platform 1968</td>
+<td style="text-align: left;">Republican Party</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+<section id="research-question" class="level2">
+<h2 class="anchored" data-anchor-id="research-question">2. Research question</h2>
+<blockquote class="blockquote">
+<p>Describe a research question you want to explore with topic modelling. Comment on how answerable this is with the methods and data at your disposal.</p>
+</blockquote>
+<p>While there is plenty of research documenting the ways in which the Democratic and Republican parties have become increasingly polarized in recent decades, I am interested in applying topic modeling to assess whether this polarization is reflected in the parties’ manifestos. Put more concretely: <strong>Does the amount of space that Democratic and Republican parties dedicate towards certain topics in their party manifestos diverge over time?</strong></p>
+</section>
+<section id="topic-model-development" class="level2">
+<h2 class="anchored" data-anchor-id="topic-model-development">3. Topic model development</h2>
+<blockquote class="blockquote">
+<p>Create a topic model using your data. Explain to a non-specialist what the topic model does. Comment on the choices you make here in terms of hyperparameter selection and model choice. How might these affect your results and the ability to answer your research question?</p>
+</blockquote>
+<p>I use the <code>stm</code> package to estimate a structural topic model. Metadata covariates for topic prevalence allow the observed metadata to affect the frequency with which a topic is discussed. For this analysis, <code>party</code> is a covariate in the topic prevalence portion of the model. Each document is modeled as a mixture of multiple topics. Topical prevalence captures how much each topic contributes to a document. Because different documents come from different sources, it is natural to want to allow this prevalence to vary with metadata that we have about document sources. Prevalence is a function of the <code>party</code> variable (either “Democratic Party” or “Republican Party”) as well as the <code>year</code> variable. I estimate a <strong>XX</strong> topic STM model. Variables are included additively. While this may not be the most sophisticated model for answering our question, it should provide an indication of whether the hypothesis is reasonable.</p>
+<div class="cell" data-layout-align="center" data-fig.out="100%">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>search_results <span class="ot">&lt;-</span> <span class="fu">searchK</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> docs, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> vocab, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> meta,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">K =</span> <span class="fu">seq</span>(<span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">5</span>),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prevalence =</span> <span class="sc">~</span> partyname <span class="sc">+</span> year,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">heldout.seed =</span> <span class="dv">10</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.searchK</span>(search_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/search_k-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For the sake of this exercise, we’ll look to maximize the semantic coherence which appears to peak when the number of topics <code>K = 20</code> . Year is modeled linearly for simplicity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define number of topics</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>n_topics <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create topic model</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> docs, </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> vocab,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> meta, </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">K =</span> n_topics, <span class="co"># number of latent topics</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">prevalence =</span> <span class="sc">~</span> partyname <span class="sc">+</span> year,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">init.type =</span> <span class="st">"Spectral"</span>, <span class="co"># spectral initialization</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="topic-model-description" class="level2">
+<h2 class="anchored" data-anchor-id="topic-model-description">4. Topic model description</h2>
+<blockquote class="blockquote">
+<p>Describe the topic model. What topics does it contain? How are these distributed across the data?</p>
+</blockquote>
+<p>To better understand the topic model, we can look at which words are associated with each topic. While there are several methods for determining which words are most representative of a given topic, I use the FREX method which weights words by their overall frequency as well as how exclusive they are to a given topic. This should prevent words which appear very often across all texts (e.g., “america”, “presid”, “govern”) from dominating our list of words.</p>
+<p>The plot below shows the expected proportion of the corpus belonging to each topic. As such, topic 12 appears to be the topic most commonly discussed in party manifestos.</p>
+<p>We can also see how Democrats and Republicans talk about these topics differently. We can also plot word clouds of the words most likely to occur in a party manifesto related to various topics.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># top words per topic</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.STM</span>(topic_model, <span class="at">type =</span> <span class="st">"labels"</span>, <span class="at">n =</span> <span class="dv">5</span>, <span class="at">labeltype =</span> <span class="st">"frex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/word_assoc-1.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create topic labels</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>topic_labels <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot top topics</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(topic_model, <span class="at">type =</span> <span class="st">"summary"</span>, <span class="at">labeltype =</span> <span class="st">"frex"</span>, <span class="at">n =</span> <span class="dv">5</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/word_assoc-2.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compare words between topics</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.STM</span>(topic_model, <span class="at">type =</span> <span class="st">"perspectives"</span>, <span class="at">topics =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">covarlevels =</span> <span class="fu">c</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/word_assoc-3.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wordcloud </span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cloud</span>(topic_model, <span class="at">topic =</span> <span class="dv">3</span>, <span class="at">scale =</span> <span class="fu">c</span>(<span class="dv">2</span>, .<span class="dv">25</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/word_assoc-4.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the Dirichlet distribution to allocate the words of the manifestos to different topics. "Texts do not require any prior annotations or labeling of the documents—the topics emerge from the analysis of the original texts". The idea is that "Documents exhibit multiple topics" Topic = a distribution over a fixed vocabulary. Each document exhibits the topics in different proportion (step #1); each word in each document is drawn from one of the topics (step #2b), where the selected topic is chosen from the per-document distribution over topics (step #2a). All the documents in the collection share the same set of topics, but each document exhibits those topics in different proportion. what is the hidden structure that likely generated the observed collection?</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">#The definition of a “good” topic is not universal but task dependent.</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">#A good topic model is one that helps us to answer the research question we have in mind, or helps us to better perform the task we have.</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Sometimes we want the big picture (few topics), sometimes we want fine-grained detail (many topics).</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">#What we should ensure is that any results we present are not an artefact of an arbitrary model choice we make, but are robust to a variety of reasonable specifications.</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co"># evaluate performance</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">#A quick heuristic for naming topics is to concatenate the top 3 terms for each topic.</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">#If we want to use our model then we should give meaningful names to topics by inspecting the top terms and top documents associated with each topic.</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">#Loss/heldout-likelihood based measures work by comparing the topic predictions of words in documents to the actually observed numbers of words in documents.</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Coherence based measures work by assessing whether the words in a topic are similar. If words in a topic only infrequently co-occur in documents, then this topic is considered less coherent.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="answering-your-research-question" class="level2">
+<h2 class="anchored" data-anchor-id="answering-your-research-question">5. Answering your research question</h2>
+<blockquote class="blockquote">
+<p>Use your topic model to answer your research question by showing plots or statistical results. Discuss the implications of what you find, and any limitations inherent in your approach. Discuss how the work could be improved upon in future research.</p>
+</blockquote>
+<p>We can estimate relationships between metadata and topics using <code>estimateEffect</code>. We use a first difference type estimate where topic prevalence for a given topic is contrasted between Democrat and Republican manifestos. We plot the change in topic proportion that comes with shifting from one party to the other. We can also plot the prevalence of topics over time.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate effect</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>estim <span class="ot">&lt;-</span> <span class="fu">estimateEffect</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="dv">1</span><span class="sc">:</span>n_topics <span class="sc">~</span> partyname <span class="sc">+</span> year,  </span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">stmobj =</span> topic_model,  </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">metadata =</span> meta,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">uncertainty =</span> <span class="st">"Global"</span> <span class="co"># account for topic proportions</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co"># regression table</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(estim, <span class="at">topics =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+estimateEffect(formula = 1:n_topics ~ partyname + year, stmobj = topic_model, 
+    metadata = meta, uncertainty = "Global")
+
+
+Topic 1:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)               -2.020102   3.794637  -0.532    0.599
+partynameRepublican Party  0.065513   0.076374   0.858    0.398
+year                       0.001027   0.001908   0.538    0.595</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot difference in topic prevalence by party</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.estimateEffect</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  estim, </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">covariate =</span> <span class="st">"partyname"</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"difference"</span>, </span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cov.value1 =</span> <span class="st">"Democratic Party"</span>, </span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">cov.value2 =</span> <span class="st">"Republican Party"</span>, </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="cn">NULL</span>,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Democratic Party  . . .  Republican Party"</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>),</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">15</span>),</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#labeltype = "custom",</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">#custom.labels = topic_labels,</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose.labels =</span> <span class="cn">FALSE</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/estimate_effect-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can calculate correlation between topics using <code>topicCorr</code>. Positive correlations indicate that two topics are likely to co-occur in the same manifesto. We can then plot a graph showing connections between topics.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>mod.out.corr <span class="ot">&lt;-</span> <span class="fu">topicCorr</span>(topic_model)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mod.out.corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/topic_corr-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">toLDAvis</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  topic_model,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  docs,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">30</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.opts =</span> <span class="fu">list</span>(<span class="at">xlab =</span> <span class="st">"PC1"</span>, <span class="at">ylab =</span> <span class="st">"PC2"</span>),</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">lambda.step =</span> <span class="fl">0.1</span>,</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.dir =</span> <span class="fu">tempfile</span>(),</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">open.browser =</span> <span class="fu">interactive</span>(),</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">as.gist =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">reorder.topics =</span> <span class="cn">TRUE</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">#![LDAvis](img/lda-vis.png){width=100%} </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>effect <span class="ot">&lt;-</span> <span class="fu">extract.estimateEffect</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  estim,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">covariate =</span> <span class="st">"partyname"</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> topic_model, </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"pointestimate"</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Lets extract the estimates in a tidy format so that we can plot it</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="do">## ourselves. We can now use lapply instead to first run it with</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="do">## moderator.value 0 and then with moderator.value 1, and then bind</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="do">## the two data frames together.</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>effect <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">c</span>(<span class="st">"Democratic Party"</span>, <span class="st">"Republican Party"</span>), <span class="cf">function</span>(i) {</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract.estimateEffect</span>(estim,</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>                         <span class="at">covariate =</span> <span class="st">"year"</span>,</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>                         <span class="at">method =</span> <span class="st">"continuous"</span>,</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>                         <span class="at">model =</span> topic_model,</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>                         <span class="at">labeltype =</span> <span class="st">"frex"</span>,</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>                         <span class="at">n =</span> <span class="dv">5</span>,</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>                         <span class="at">moderator =</span> <span class="st">"partyname"</span>,</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>                         <span class="at">moderator.value =</span> i)</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>effect <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="st">"rbind"</span>, effect)</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a><span class="do">## And, for example, plot it with ggplot2 and facet by topic instead.</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(effect, <span class="fu">aes</span>(<span class="at">x =</span> covariate.value, <span class="at">y =</span> estimate,</span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>                   <span class="at">ymin =</span> ci.lower, <span class="at">ymax =</span> ci.upper,</span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>                   <span class="at">group =</span> moderator.value,</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>                   <span class="at">fill =</span> <span class="fu">factor</span>(moderator.value))) <span class="sc">+</span></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> label, <span class="at">nrow =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha =</span> .<span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Expected Topic Proportion"</span>,</span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/plot_effects-1.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sources" class="level1">
+<h1>Sources</h1>
+<ul>
+<li>Lehmann, Pola / Franzmann, Simon / Burst, Tobias / Regel, Sven / Riethmüller, Felicia / Volkens, Andrea / Weßels, Bernhard / Zehnter, Lisa (2023): The Manifesto Data Collection. Manifesto Project (MRG/CMP/MARPOR). Version 2023a. Berlin: Wissenschaftszentrum Berlin für Sozialforschung (WZB) / Göttingen: Institut für Demokratieforschung (IfDem). <a href="https://doi.org/10.25522/manifesto.mpds.2023a" class="uri">https://doi.org/10.25522/manifesto.mpds.2023a</a></li>
+</ul>
+</section>
+<section id="resources" class="level1">
+<h1>Resources</h1>
+<ul>
+<li><a href="https://www.cs.columbia.edu/~blei/papers/Blei2012.pdf" class="uri">https://www.cs.columbia.edu/~blei/papers/Blei2012.pdf</a></li>
+<li><a href="https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf"><code>manifestoR</code> vignette</a></li>
+<li><a href="https://manifesto-project.wzb.eu/tutorials/primer" class="uri">https://manifesto-project.wzb.eu/tutorials/primer</a></li>
+<li><a href="https://manifesto-project.wzb.eu/tutorials/main-dataset" class="uri">https://manifesto-project.wzb.eu/tutorials/main-dataset</a></li>
+<li><a href="https://manifesto-project.wzb.eu/tutorials/firststepsmanifestoR" class="uri">https://manifesto-project.wzb.eu/tutorials/firststepsmanifestoR</a></li>
+<li><a href="https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf" class="uri">https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf</a></li>
+<li><a href="https://github.com/mikajoh/tidystm" class="uri">https://github.com/mikajoh/tidystm</a></li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

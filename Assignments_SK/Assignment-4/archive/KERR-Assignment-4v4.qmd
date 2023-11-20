@@ -1,0 +1,378 @@
+---
+title: "Assignment 4"
+author: "Steve Kerr (211924)"
+date: "20 November 2023"
+format:
+  html:
+    embed-resources: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+# Introduction
+
+> In this assignment, you are asked to use topic modelling to investigate manifestos from the manifesto project maintained by [WZB](https://manifesto-project.wzb.eu/). You can either use the UK manifestos we looked at together in class, or collect your own set of manifestos by choosing the country/countries, year/years and party/parties you are interested in. You should produce a report which includes your code, that addresses the following aspects of creating a topic model, making sure to answer the questions below.
+>
+> This time, you will be assessed not only on whether the code gets the right result, but on how you understand and communicate your understanding of the modelling process and how this can answer your research question. The best research question is one that is interesting and answerable, but the most important thing is that the research question is answerable with the methods you choose.
+>
+> You will also be assessed on the presentation of your results, and on the concision and readability of your code.
+
+## 1. Data acquisition, description, and preparation
+
+> Bring together a dataset from the WZB. What years, countries and parties are included in the dataset? How many texts do you have for each of these?
+>
+> Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.
+
+### Setup
+
+We start by loading our packages.
+
+```{r}
+# TODO: discard irrelevant packages
+# load packages
+pacman::p_load(
+  dplyr, 
+  ggplot2,
+  gt, 
+  here,
+  kableExtra,
+  knitr,
+  lubridate,
+  manifestoR,
+  quanteda,
+  readr,
+  tidyr,
+  tidytext,
+  topicmodels
+  )
+```
+
+### Data acquisition
+
+We'll be using WZB's `manifestoR` package to download and work with the manifesto data. In order to establish a connection with WZB's API, we first need to set our API key.
+
+```{r}
+# define API key
+mp_setapikey(here("Assignments_SK/Assignment-4/manifesto_apikey.txt"))
+```
+
+We limit our analysis to **the United Kingdom** and **the United States**. I examine the period **from XXXX to 2020** (all years for which data are available). Furthermore, I exclude parties with less than XXX over the XXX-year period. In total, the analysis includes **XXX parties**: the United Kingdom (X) and the United States (X). In total, our corpus consists of **XX party manifestos**. We start by checking for the availability of manifestos.
+
+```{r, output=FALSE}
+# list of countries
+countries <- c(
+  "United States",
+  "United Kingdom"
+  )
+
+# list of parties
+parties <- c(
+  "Conservative Party",
+  "Labour Party",
+  "Democratic Party",
+  "Republican Party"
+  ) # US parties
+
+# select only annotated docs
+selected_docs <- mp_availability(countryname %in% countries & partyname %in% parties)
+  #filter(annotations == TRUE)
+```
+
+Next, we load our corpus with the manifestos we've identified as relevant.
+
+```{r, message=FALSE}
+# define file path for corpus
+corpus_path <- here("Assignments_SK/Assignment-4/data/corpus.rds")
+
+# download data if doesn't already exist
+if (!file.exists(corpus_path)) {
+
+  # TODO: codefilter = 401
+  corpus <- mp_corpus(selected_docs) # query data 
+  saveRDS(corpus, corpus_path) # save data
+
+} else corpus <- read_rds(corpus_path) # load data
+
+# TODO: Make sure that no duplicates included
+
+# inspect corpus
+corpus
+
+# view beginning of text of first manifesto
+kable(head(content(corpus[[1]])))
+
+# view meta data of first manifesto
+NLP::meta(corpus[[1]])
+```
+
+Next, we load the main dataset which contains meta data for each manifesto as well as labels for which passages correspond with which topics.
+
+```{r}
+# define file path for main dataset
+main_dataset_path <- here("Assignments_SK/Assignment-4/data/main_data.rds")
+
+# download data if doesn't already exist
+if (!file.exists(main_dataset_path)) {
+  
+  main_df <- mp_maindataset() # query data
+  saveRDS(main_df, main_dataset_path) # save data
+  
+} else main_df <- read_rds(main_dataset_path) # load data
+
+# clean main dataset
+main_df <- main_df |> 
+  filter(countryname %in% countries & partyname %in% parties)
+
+# TODO: Make sure that no duplicates are included
+
+kable(head(main_df))
+```
+
+### Data description
+
+Here's a breakdown of countries and parties contained in our dataset.
+
+```{r}
+# TODO: make table look nice
+# table of countries and parties
+main_df |> 
+  count(countryname, partyname) |> 
+  arrange(countryname, desc(n)) |> 
+  select(-n) |> 
+  gt(
+    rowname_col = "partyname",
+    groupname_col = "countryname",
+    row_group_as_column = TRUE
+  )
+```
+
+```{r, fig.height=5}
+# TODO: fix plot
+# plot number of manifestos by country over time
+# TODO: make sure that those with annotations are taken into consideration (corpus vs main dataset)
+main_df |> 
+  mutate(year = year(edate)) |> 
+  count(year, countryname) |>
+  ggplot(aes(x = year, y = n, fill = countryname)) +
+  geom_col(width = 1) +
+  scale_fill_brewer(palette = "Paired") + 
+  labs(
+    title = "Party Manifestos",
+    subtitle = "2000-2020",
+    x = NULL,
+    y = "No. Manifestos",
+    fill = NULL,
+    caption = "source: WZB"
+  ) +
+  facet_wrap(~ countryname, ncol = 1) +
+  scale_x_continuous(breaks = seq(1920, 2020, 5)) +
+  scale_y_continuous(breaks = seq(0, 6, 1)) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+    )
+```
+
+We can observe differences in election cycles between the United States and the United Kingdom. Wheras the US has a predictable election cycle with elections scheduled to take place once every four years, the United Kingdom's parliamentarian systems lends itself to a much more erratic election schedule (?). Note that the number of manifestos issued by major parties (as defined per our inclusion criteria) remains the same across time for the United States (2), while this figure fluctuates in the United Kingdom (?).
+
+### Data preparation
+
+Next, we prepare our data for topic modeling by transforming our corpus into a document feature matrix. As part of pre-processing, we .... Note that we also.... This may impact our final result by ....
+
+```{r}
+library(tibble)
+# initialize empty df to store text data 
+text_df <- data.frame()
+
+# for each text in corpus....
+for (i in 1:length(corpus)) {
+  temp_df <- as.data.frame(corpus[[i]], with.meta = TRUE)
+  #text_col <- paste(c(content(corpus[[i]])), collapse = " ")
+  #id_col <- NLP::meta(corpus[[i]])$manifesto_id
+  #as.data.frame(corpus[[i]], with.meta = TRUE) |> 
+    #group_by(manifesto_id) |> 
+    #distinct(text_id, manifesto_id, pos, text, cmp_code, countryname, country, partyname, party, title, date)
+  #temp_df <- tibble::as_tibble_col()
+  text_df <- bind_rows(text_df, temp_df)
+}
+
+text_tidy <- text_df |> 
+  #filter(!is.na(cmp_code) & cmp_code != "000") |> 
+  #filter(cmp_code %in% c(401:499)) |> 
+  mutate(text_id = paste0("text", row_number())) |> 
+  left_join(main_df |> 
+              distinct(country, countryname, party, partyname), 
+            by = "party") |>   # supplement info 
+  select(text_id, manifesto_id, pos, text, cmp_code, countryname, country, partyname, party, title, date)
+  
+kable(head(text_tidy))
+```
+
+Next, we perform pre-processing on our text data.
+
+```{r, warning=FALSE}
+# pre-processing
+dfmat <- text_tidy$text |> 
+  tokens(
+    remove_punct = TRUE, 
+    remove_numbers = TRUE, 
+    remove_symbols = TRUE
+    ) |> # TODO: remove more?
+  tokens_remove(pattern = stopwords("en")) |> 
+  tokens_wordstem() |> 
+  dfm() |>  # TODO: dfm_trim more?
+  # keep only words occurring frequently (top 20%) and in <=2 documents
+  dfm_trim(
+    min_termfreq = .2, termfreq_type = "quantile",
+    min_docfreq = .2, docfreq_type = "quantile"
+    )
+
+# drop rows with zeros
+dfmat <- dfmat[rowSums(dfmat) != 0, ]
+
+head(dfmat)
+```
+
+## 2. Research question
+
+> Describe a research question you want to explore with topic modelling. Comment on how answerable this is with the methods and data at your disposal.
+
+For my research question, I am interested in exploring the extent to which climate-related issues were included in various parties' manifestos. Specifically, I am interested in whether a party's willingness to express a stance on climate change is more related to their political leaning or the country.
+
+## 3. Topic model development
+
+> Create a topic model using your data. Explain to a non-specialist what the topic model does. Comment on the choices you make here in terms of hyperparameter selection and model choice. How might these affect your results and the ability to answer your research question?
+
+```{r}
+# define number of topics
+n_topics <- 20 # encode our prior about how many topics are in the document
+
+tictoc::tic() # timer start
+lda <- LDA(dfmat, n_topics) # TODO: experiment with number of topics
+tictoc::toc() # timer stop
+```
+
+```{r}
+# TODO: interpret these 
+print(dim(lda@gamma), dim(lda@beta))
+
+# TODO: interpret 
+topic_words <- tidy(lda, matrix = "beta") |>
+  group_by(topic) |>
+  slice_max(beta, n = 10) |>
+  ungroup() |>
+  arrange(topic, -beta)
+
+# plot topics
+topic_words |>
+  mutate(term = reorder_within(term, beta, topic)) |>
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered() +
+  #scale_fill_brewer(palette = "RdYlBu") + 
+  theme_minimal()
+
+# save plot
+ggsave(glue::glue("img/top_terms_{n_topics}.png"), width = 12, height = 8)
+```
+
+```{r, warning=FALSE, fig.height=5}
+# TODO: interpret
+manifesto_topics <- tidy(lda, matrix = "gamma") |>
+  left_join(text_tidy, by = c("document" = "text_id"))
+
+yearly_topics <- manifesto_topics |>
+  mutate(year = ym(date)) |>
+  group_by(year, partyname, topic) |>
+  summarise(gamma = sum(gamma)) |>
+  ungroup() |> 
+  group_by(year, partyname) |>
+  mutate(year_share = gamma/sum(gamma)) |>
+  ungroup() |>
+  mutate(topic = factor(topic))
+
+kable(head(yearly_topics))
+
+yearly_topics |>
+  #filter(topic %in% 1:5) |> 
+  ggplot(aes(x = year, y = year_share, group = partyname, colour = partyname, fill = topic)) +
+  geom_line() +
+  facet_wrap(~topic, ncol = 4, scales = "fixed") +
+  #scale_color_manual(values = c("Republican Party" = "#E41A1C", "Democratic Party" = "#377EB8")) +
+  scale_x_date(
+    date_breaks = "4 years", 
+    date_labels = "%Y"
+    ) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(
+    title = "Topics found in party manifestos",
+    subtitle = "",
+    x = NULL,
+    y = "",
+    color = "Political party",
+    caption = "source: WZB"
+  ) + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(
+    xlim = c(as_date("1960-01-01"), as_date("202-06-01")),
+    ylim = c(0, 1)
+    )
+
+# save plot
+ggsave(glue::glue("img/topic_groups_{n_topics}.png"), width = 12, height = 8)
+```
+
+```{r}
+#The definition of a “good” topic is not universal but task dependent.
+
+#A good topic model is one that helps us to answer the research question we have in mind, or helps us to better perform the task we have.
+
+#Sometimes we want the big picture (few topics), sometimes we want fine-grained detail (many topics).
+
+#What we should ensure is that any results we present are not an artefact of an arbitrary model choice we make, but are robust to a variety of reasonable specifications.
+```
+
+```{r}
+# evaluate performance
+#A quick heuristic for naming topics is to concatenate the top 3 terms for each topic.
+#If we want to use our model then we should give meaningful names to topics by inspecting the top terms and top documents associated with each topic.
+
+#Loss/heldout-likelihood based measures work by comparing the topic predictions of words in documents to the actually observed numbers of words in documents.
+
+#Coherence based measures work by assessing whether the words in a topic are similar. If words in a topic only infrequently co-occur in documents, then this topic is considered less coherent.
+```
+
+## 4. Topic model description
+
+> Describe the topic model. What topics does it contain? How are these distributed across the data?
+
+We use the **Dirichlet distribution** to allocate the words of the manifestos to different topics. "Texts do not require any prior annotations or labeling of the documents---the topics emerge from the analysis of the original texts". The idea is that "Documents exhibit multiple topics" **Topic** = a distribution over a fixed vocabulary. Each document exhibits the topics in different proportion (step #1); each word in each document is drawn from one of the topics (step #2b), where the selected topic is chosen from the per-document distribution over topics (step #2a). All the documents in the collection share the same set of topics, but each document exhibits those topics in different proportion. what is the hidden structure that likely generated the observed collection?
+
+```{r}
+
+```
+
+## 5. Answering your research question
+
+> Use your topic model to answer your research question by showing plots or statistical results. Discuss the implications of what you find, and any limitations inherent in your approach. Discuss how the work could be improved upon in future research.
+
+```{r}
+
+```
+
+# Sources
+
+-   Lehmann, Pola / Franzmann, Simon / Burst, Tobias / Regel, Sven / Riethmüller, Felicia / Volkens, Andrea / Weßels, Bernhard / Zehnter, Lisa (2023): The Manifesto Data Collection. Manifesto Project (MRG/CMP/MARPOR). Version 2023a. Berlin: Wissenschaftszentrum Berlin für Sozialforschung (WZB) / Göttingen: Institut für Demokratieforschung (IfDem). <https://doi.org/10.25522/manifesto.mpds.2023a>
+
+# Resources
+
+-   [`manifestoR` vignette](https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf)
+-   <https://manifesto-project.wzb.eu/tutorials/primer>
+-   <https://manifesto-project.wzb.eu/tutorials/main-dataset>
+-   <https://manifesto-project.wzb.eu/tutorials/firststepsmanifestoR>
+-   <https://www.cs.columbia.edu/~blei/papers/Blei2012.pdf>

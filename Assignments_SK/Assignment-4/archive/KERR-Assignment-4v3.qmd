@@ -2,16 +2,8 @@
 title: "Assignment 4"
 author: "Steve Kerr (211924)"
 date: "20 November 2023"
-output: 
-  html_document:
-    toc: FALSE
-    df_print: paged
-    number_sections: FALSE
-    highlight: tango
-    theme: lumen
-    toc_depth: 3
-    toc_float: true
-    self_contained: false
+output: pdf
+editor: visual
 ---
 
 ```{r setup, include=FALSE}
@@ -26,7 +18,15 @@ This time, you will be assessed not only on whether the code gets the right resu
 
 You will also be assessed on the presentation of your results, and on the concision and readability of your code.
 
-> We start by loading our packages and setting our API key.
+## 1. Data acquisition, description, and preparation
+
+Bring together a dataset from the WZB. What years, countries and parties are included in the dataset? How many texts do you have for each of these?
+
+Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.
+
+### Setup
+
+> We start by loading our packages.
 
 ```{r}
 # TODO: discard irrelevant packages
@@ -48,95 +48,71 @@ pacman::p_load(
   #LDAvis
   #stm
   )
+```
 
+### Data acquisition
+
+> We'll be using WZB's `manifestoR` package to download and work with the manifesto data. In order to establish a connection with WZB's API, we first need to set our API key.
+
+```{r}
 # define API key
 mp_setapikey(here("Assignments_SK/Assignment-4/manifesto_apikey.txt"))
 ```
 
-## 1. Data acquisition, description, and preparation
+> We limit our analysis to **the United Kingdom** and **the United States**. I examine the period **from XXXX to 2020** (all years for which data are available). Furthermore, I exclude parties with less than XXX over the XXX-year period. In total, the analysis includes **XXX parties**: the United Kingdom (X) and the United States (X). In total, our corpus consists of **XX party manifestos**.
+>
+> We start by checking for the availability of manifestos.
 
-Bring together a dataset from the WZB.
-
-What years, countries and parties are included in the dataset? How many texts do you have for each of these?
-
-> I limit my analysis to the following predominantly English-speaking countries: **Australia**, **Canada**, **New Zealand**, **South Africa**, **the United Kingdom**, and **the United States**. I examine the period **from 2000 to 2020** (the latest year for which data are available). Furthermore, I exclude parties with less than three manifestos over the twenty-year period. In total, the analysis includes **twenty-six parties**: Australia (6), Canada (4), New Zealand (7), South Africa (3), the United Kingdom (4), and the United States (2). Our corpus consists of **145 party manifestos**.
-
-> For this assignment, we'll use three different data sources. The first is the reference table which contains information on how country and party codes (e.g., "61" and "XX") relate to country and party names ("" and ""). The second is the meta data for each party manifesto contained in the corpus. While this information is included in the `ManifestoCorpus` object returned by `manifestoR`'s `mp_corpous()` function, the `mp_metadata()` function returns this data in a tidy format that is easier to work with. Lastly, we need the corpus of party manifestos. We can load this with the `mp_corpous()` function.
-
-```{r, message=FALSE}
-# list of English-speaking countries
+```{r}
+# list of countries
 countries <- c(
-  #"Australia", 
-  #"Canada", 
-  #"Ireland", # TODO: Mention Ireland in narrative
-  #"South Africa", 
-  #"New Zealand", 
   #"United Kingdom", 
   "United States"
-  ) 
+  )
+
+# list of parties
+parties <- c(
+  #"Conservative Party", "Labour Party", "Liberal Party", # UK parties
+  #"Liberal Democrats", "Democratic Unionist Party", "Scottish National Party",
+  #"Socialist Party", "Conservative People’s Party", 
+  "Democratic Party", "Republican Party" # US parties
+  )
+
+# min date
+#min_date <- 200401
+
+available_docs <- mp_availability(countryname %in% countries &
+                                    partyname %in% parties)
+
+annotated_docs <- available_docs |> 
+  filter(annotations == TRUE)
 ```
 
-> Let's load our meta data.
+> Next, we load our corpus with the manifestos we've identified as relevant.
 
-```{r}
-# define file path for meta data
-file_path <- here("Assignments_SK/Assignment-4/data/meta_data.rds") 
+```{r, message=FALSE}
 
-# download data if doesn't already exist
-if (!file.exists(file_path)) {
 
-  meta_df <- mp_metadata(countryname %in% countries & edate > as_date("2000-01-01")) # query data
-  saveRDS(meta_df, file_path) # save data
-  
-} else meta_df <- read_rds(file_path) # load data
+min_year <- 200401
 
-head(meta_df)
-```
-
-> Next, let's get our meta data into a usable shape.
-
-```{r}
-# wrangle meta data
-meta_df <- meta_df |>
-  filter(
-    is.na(is_copy_of), # remove copies
-    language == "english" # remove non-English texts
-    ) |>
-  select(manifesto_id, party_id = party, date) |>
-  mutate( # fix data types
-    party_id = as.numeric(party_id),
-    date = ym(date)
-    ) |> 
-  group_by(party_id) |> 
-  filter(n() > 3 ) |> # only include parties with more than three manifestos
-  ungroup() 
-  
-head(meta_df)
-```
-
-> Now that we've applied our filtering criteria, let's store the party IDs and manifesto IDs that we're interested in for future use.
-
-```{r}
-# list of pertinent party IDs
-party_ids <- meta_df$party_id |> unique()
-
-# list of pertinent manifesto IDs 
-manifesto_ids <- meta_df$manifesto_id
-```
-
-> Let's load our corpus of manifestos.
-
-```{r}
 # define file path for corpus
-file_path <- here("Assignments_SK/Assignment-4/data/corpus.rds")
+corpus_path <- here("Assignments_SK/Assignment-4/data/corpus.rds")
+
+mp_availability(countryname %in% countries & 
+                  partyname %in% parties & 
+                  date >= min_year
+                )
 
 # download data if doesn't already exist
-if (!file.exists(file_path)) {
+if (!file.exists(corpus_path)) {
 
-  corpus <- mp_corpus(party %in% party_ids) # query data
-  saveRDS(corpus, file_path) # save data
+  corpus <- mp_corpus(annotated_docs) # query data
+  saveRDS(corpus, corpus_path) # save data
 
-} else corpus <- read_rds(file_path) # load data
+} else corpus <- read_rds(corpus_path) # load data
+
+# TODO: Make sure that no duplicates included
+# TODO: Make sure that all texts are in English
 
 # inspect corpus
 corpus
@@ -144,63 +120,54 @@ head(content(corpus[[1]])) # view beginning of text of first manifesto
 NLP::meta(corpus[[1]]) # view meta data of first manifesto
 ```
 
-> Let's load our reference table.
+> Next, we load the main dataset which contains meta data for each manifesto as well as labels for which passages correspond with which topics.
 
 ```{r}
-# define file path for reference table
-file_path <- here("Assignments_SK/Assignment-4/data/ref_data.rds")
+# define file path for main dataset
+mp_path <- here("Assignments_SK/Assignment-4/data/mp_data.rds")
 
 # download data if doesn't already exist
-if (!file.exists(file_path)) {
+if (!file.exists(mp_path)) {
   
-  ref_df <- mp_maindataset() # query data
-  saveRDS(ref_df, file_path) # save data
+  mp_df <- mp_maindataset() # query data
+  saveRDS(mp_df, mp_path) # save data
   
-} else ref_df <- read_rds(file_path) # load data
+} else mp_df <- read_rds(mp_path) # load data
 
-# wrangle reference table
-ref_df <- ref_df |> # TODO: preseve title info 
-  filter(party %in% meta_df$party_id) |> 
-  select( # add meaningful var names
-    country_id = country, 
-    country = countryname, 
-    party_id = party, 
-    party = partyname
-    ) |> 
-  distinct()
+# clean main dataset
+mp_df <- mp_df |> 
+  filter(countryname %in% countries & partyname %in% parties)
 
-head(ref_df)
+# TODO: Make sure that no duplicates are included
+
+head(mp_df)
 ```
 
-> Let's merge the meta data with the reference table.
+### Data description
+
+> Here's a breakdown of countries and parties contained in our dataset.
 
 ```{r}
-merged_df <- left_join(meta_df, ref_df, by = join_by(party_id)) |> 
-  relocate(contains("country"), contains("party"), date, contains("manifesto")) |> 
-  arrange(date) 
-
-head(merged_df)
-```
-
-```{r}
+# TODO: make table look nice
 # table of countries and parties
-merged_df |> 
-  count(country, party) |> 
-  arrange(country, desc(n)) |> 
+mp_df |> 
+  count(countryname, partyname) |> 
+  arrange(countryname, desc(n)) |> 
   select(-n) |> 
   gt(
-    rowname_col = "party",
-    groupname_col = "country",
+    rowname_col = "partyname",
+    groupname_col = "countryname",
     row_group_as_column = TRUE
   )
 ```
 
 ```{r, fig.height=5}
+# TODO: fix plot
 # plot number of manifestos by country over time
-merged_df |> 
-  mutate(year = year(date)) |> 
-  count(year, country) |>
-  ggplot(aes(x = year, y = n, fill = country)) +
+mp_df |> 
+  mutate(year = year(edate)) |> 
+  count(year, countryname) |>
+  ggplot(aes(x = year, y = n, fill = countryname)) +
   geom_col(width = 1) +
   scale_fill_brewer(palette = "Paired") + 
   labs(
@@ -211,9 +178,9 @@ merged_df |>
     fill = NULL,
     caption = "source: WZB"
   ) +
-  facet_wrap(~ country, ncol = 1) +
-  scale_x_continuous(breaks = 2000:2020) +
-  scale_y_continuous(breaks = seq(0, 5, 1)) +
+  facet_wrap(~ countryname, ncol = 1) +
+  scale_x_continuous(breaks = seq(1920, 2020, 5)) +
+  scale_y_continuous(breaks = seq(0, 6, 1)) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
@@ -221,11 +188,40 @@ merged_df |>
     )
 ```
 
-> We can observe differences in the countries with regularly scheduled election cycles (Australia, New Zealand, South Africa, and the United States) compared to those with parliamentarian systems (Canada and the United Kingdom) (?). The number of party manifestos for each country varies: United States (2)
+> We can observe differences in election cycles between the United States and the United Kingdom. Wheras the US has a predictable election cycle with elections scheduled to take place once every four years, the United Kingdom's parliamentarian systems lends itself to a much more erratic election schedule (?). Note that the number of manifestos issued by major parties (as defined per our inclusion criteria) remains the same across time for the United States (2), while this figure fluctuates in the United Kingdom (?).
 
-Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.
+### Data preparation
 
-> 
+> Next, we prepare our data for topic modeling by transforming our corpus into a document feature matrix. As part of pre-processing, we .... Note that we also.... This may impact our final result by ....
+
+```{r}
+# interested in free market economy 
+mp_describe_code(code = "401")
+```
+
+```{r}
+meta_df <- mp_metadata(countryname %in% countries &
+                         partyname %in% parties &
+                         date > min_year) # TODO: rename var to min_date
+
+glimpse(meta_df)
+
+meta_df 
+
+meta_df |> 
+  filter(annotations == TRUE) |> 
+  pull(manifesto_id)
+```
+
+```{r}
+glimpse(mp_df)
+
+mp_df |>
+  pull(per401)
+
+test <- corpus |> 
+  as.data.frame(with.meta = TRUE)
+```
 
 ```{r}
 # initialize empty df to store text data
@@ -269,7 +265,7 @@ head(dfmat)
 
 Describe a research question you want to explore with topic modelling. Comment on how answerable this is with the methods and data at your disposal.
 
-> For my research question, I am interested in exploring the extent to which climate-related issues were included in various parties' manifestos. Specifically, I am interested in whether a party's willingness to express a stance on climate change is more related to their political leaning or the country. 
+> For my research question, I am interested in exploring the extent to which climate-related issues were included in various parties' manifestos. Specifically, I am interested in whether a party's willingness to express a stance on climate change is more related to their political leaning or the country.
 
 ## 3. Topic model development
 
@@ -312,47 +308,47 @@ ggsave(glue::glue("img/top_terms_{n_topics}.png"), width = 12, height = 8)
 ```
 
 ```{r}
-manifesto_topics <- tidy(lda, matrix = "gamma") |>
-  left_join(merged_df, by = c("document" = "manifesto_id"))
-
-yearly_topics <- manifesto_topics |> 
-  #filter(country == "United States") |> 
-  mutate(year = year(date)) |> 
-  group_by(year, party, topic) |>
-  summarise(gamma = sum(gamma)) |>
-  group_by(year, party) |>
-  mutate(year_share = gamma/sum(gamma)) |>
-  ungroup() |>
-  mutate(topic = factor(topic))
-
-yearly_topics
-
-yearly_topics |> 
-  filter(topic %in% 1:5) |> 
-  ggplot(aes(x = year, y = year_share, group = topic, colour = topic, fill = topic)) +
-  geom_line() + 
-  facet_wrap(vars(party), ncol = 1) +
-  theme_minimal()
-
-# save plot
-ggsave(glue::glue("img/topic_groups_{n_topics}.png"), width = 12, height = 8)
-
-#library(LDAvis)
-#topicmodels2LDAvis <- function(x, ...){
+# manifesto_topics <- tidy(lda, matrix = "gamma") |>
+#   left_join(merged_df, by = c("document" = "manifesto_id"))
+# 
+# yearly_topics <- manifesto_topics |> 
+#   #filter(country == "United States") |> 
+#   mutate(year = year(date)) |> 
+#   group_by(year, party, topic) |>
+#   summarise(gamma = sum(gamma)) |>
+#   group_by(year, party) |>
+#   mutate(year_share = gamma/sum(gamma)) |>
+#   ungroup() |>
+#   mutate(topic = factor(topic))
+# 
+# yearly_topics
+# 
+# yearly_topics |> 
+#   filter(topic %in% 1:5) |> 
+#   ggplot(aes(x = year, y = year_share, group = topic, colour = topic, fill = topic)) +
+#   geom_line() + 
+#   facet_wrap(vars(party), ncol = 1) +
+#   theme_minimal()
+# 
+# # save plot
+# ggsave(glue::glue("img/topic_groups_{n_topics}.png"), width = 12, height = 8)
+# 
+# library(LDAvis)
+# topicmodels2LDAvis <- function(x, ...){
 #  post <- topicmodels::posterior(x)
 #  if (ncol(post[["topics"]]) < 3) stop("The model must contain > 2 topics")
 #  mat <- x@wordassignments
 #  json <- LDAvis::createJSON(
-#    phi = post[["terms"]], 
+#    phi = post[["terms"]],
 #    theta = post[["topics"]],
 #    vocab = colnames(post[["terms"]]),
 #    doc.length = slam::row_sums(mat, na.rm = TRUE),
 #    term.frequency = slam::col_sums(mat, na.rm = TRUE)
 #  )
 #  return(json)
-#}
-#json <- topicmodels2LDAvis(lda)
-#serVis(json)
+# }
+# json <- topicmodels2LDAvis(lda)
+# serVis(json)
 ```
 
 ```{r}
