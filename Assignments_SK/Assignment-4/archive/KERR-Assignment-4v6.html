@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Steve Kerr (211924)">
-<meta name="dcterms.date" content="2023-11-20">
+<meta name="dcterms.date" content="2023-11-21">
 
 <title>Assignment 4</title>
 <style>
@@ -98,7 +98,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 20, 2023</p>
+      <p class="date">November 21, 2023</p>
     </div>
   </div>
   
@@ -119,61 +119,58 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="data-acquisition-description-and-preparation">1. Data acquisition, description, and preparation</h2>
 <blockquote class="blockquote">
 <p>Bring together a dataset from the WZB. What years, countries and parties are included in the dataset? How many texts do you have for each of these?</p>
-<p>Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.</p>
 </blockquote>
-<p>I start by loading the necessary packages.</p>
+<p>Let’s start by loading the necessary packages.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: discard irrelevant packages</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  dplyr, </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  ggplot2,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  here,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  kableExtra,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  knitr,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  lubridate,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  manifestoR,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  readr,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  stm,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">#tidyr,</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  tidystm,</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="co">#topicmodels,</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  wordcloud</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  dplyr, </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  ggplot2,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  here,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  kableExtra,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  knitr,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  lubridate,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  manifestoR,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  purrr,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  RColorBrewer,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  readr,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  stm,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  tidyr,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  tidystm</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>I’ll be using WZB’s <code>manifestoR</code> package to download and work with the manifesto data. In order to establish a connection with WZB’s API, I first need to set an API key.</p>
+<p>We’ll be using WZB’s <code>manifestoR</code> package to download and work with the manifesto data. In order to establish a connection with WZB’s API, we’ll first need to set an API key.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define API key</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mp_setapikey</span>(<span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/manifesto_apikey.txt"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>This analysis is limited to the <strong>Democratic</strong> and <strong>Republican parties</strong> in the <strong>United States</strong>. I examine the period <strong>from 1960 to 2020</strong> (all years for which data are available). In total, the corpus consists of <strong>32 party manifestos</strong>, with 16 manifestos for both parties.</p>
+<p>This analysis is limited to the <strong>Democratic</strong> and <strong>Republican parties</strong> in the <strong>United States</strong>. I examine the period <strong>from 1960 to 2020</strong> (all years for which data are available). In total, the corpus consists of <strong>32 party manifestos</strong>, with 16 authored by Democrats and 16 authored by Republicans.</p>
 <p>Let’s start by loading a corpus of relevant manifestos.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define party IDs</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>party_ids <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">61320</span>, <span class="co"># Democrats  </span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               <span class="dv">61620</span>) <span class="co"># Republicans</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for corpus</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>corpus_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/corpus.rds"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(corpus_path)) {</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  corpus <span class="ot">&lt;-</span> <span class="fu">mp_corpus</span>(party <span class="sc">%in%</span> party_ids, ) <span class="co"># query data </span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(corpus, corpus_path) <span class="co"># save data</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> corpus <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(corpus_path) <span class="co"># load data</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect corpus</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               <span class="dv">61620</span>) <span class="co"># Republicans</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for corpus</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>corpus_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/corpus.rds"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(corpus_path)) {</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  corpus <span class="ot">&lt;-</span> <span class="fu">mp_corpus</span>(party <span class="sc">%in%</span> party_ids, ) <span class="co"># query data </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(corpus, corpus_path) <span class="co"># save data</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> corpus <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(corpus_path) <span class="co"># load data</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect corpus</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;&lt;ManifestoCorpus&gt;&gt;
 Metadata:  corpus specific: 0, document level (indexed): 0
 Content:  documents: 32</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view meta data of first manifesto</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>NLP<span class="sc">::</span><span class="fu">meta</span>(corpus[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view metadata of first manifesto</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>NLP<span class="sc">::</span><span class="fu">meta</span>(corpus[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  manifesto_id               : 61320_196011
   party                      : 61320
@@ -193,20 +190,20 @@ Content:  documents: 32</code></pre>
   id                         : 61320_196011</code></pre>
 </div>
 </div>
-<p>Next, I load metadata for the manifestos in the corpus.</p>
+<p>Next, let’s load metadata for the manifestos in the corpus.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for meta data</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>meta_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/meta_data.rds"</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(meta_path)) {</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> <span class="fu">mp_metadata</span>(party <span class="sc">%in%</span> party_ids) <span class="co"># query data </span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(meta_df, meta_path) <span class="co"># save data</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> meta_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(meta_path) <span class="co"># load data</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(meta_df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for metadata</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>meta_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/meta_data.rds"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(meta_path)) {</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> <span class="fu">mp_metadata</span>(party <span class="sc">%in%</span> party_ids) <span class="co"># query data </span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(meta_df, meta_path) <span class="co"># save data</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> meta_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(meta_path) <span class="co"># load data</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(meta_df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table data-quarto-postprocess="true" class="table table-sm table-striped small">
 <thead>
@@ -337,21 +334,21 @@ Content:  documents: 32</code></pre>
 
 </div>
 </div>
-<p>Additionally, I’ll load the main dataset which contains supplemental metadata for the manifestos such as party name. All three data sources will be relevant to the analysis.</p>
+<p>Additionally, we’ll load the main dataset which contains supplemental metadata such as party name (currently our data only includes party IDs).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for main dataset</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>main_dataset_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/main_data.rds"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(main_dataset_path)) {</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  main_df <span class="ot">&lt;-</span> <span class="fu">mp_maindataset</span>() <span class="co"># query data</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  main_df <span class="ot">&lt;-</span> main_df <span class="sc">|&gt;</span> <span class="fu">filter</span>(party <span class="sc">%in%</span> party_ids) <span class="co"># prepare data</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(main_df, main_dataset_path) <span class="co"># save data</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> main_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(main_dataset_path) <span class="co"># load data</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(main_df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define file path for main dataset</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>main_dataset_path <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Assignments_SK/Assignment-4/data/main_data.rds"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># download data if doesn't already exist</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(main_dataset_path)) {</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  main_df <span class="ot">&lt;-</span> <span class="fu">mp_maindataset</span>() <span class="co"># query data</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  main_df <span class="ot">&lt;-</span> main_df <span class="sc">|&gt;</span> <span class="fu">filter</span>(party <span class="sc">%in%</span> party_ids) <span class="co"># prepare data</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(main_df, main_dataset_path) <span class="co"># save data</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> main_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(main_dataset_path) <span class="co"># load data</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(main_df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table data-quarto-postprocess="true" class="table table-sm table-striped small">
 <thead>
@@ -1602,55 +1599,58 @@ Content:  documents: 32</code></pre>
 
 </div>
 </div>
-<p>Once the data has been loaded, the text data then needs to be transformed into a format which is ready for analysis. While most of the manifestos in the corpus contain just one row with all of the text stored as a single value, those texts which have been annotated contain many rows, each corresponding with a complete thought (e.g., sentence or clause). Though these annotations may be relevant in other contexts, they will not be relevant to this analysis. The code below wrangles the data into a format where each manifesto corresponds with only one row.</p>
+<blockquote class="blockquote">
+<p>Prepare your data for topic modelling by creating a document feature matrix. Describe the choices you make here, and comment on how these might affect your final result.</p>
+</blockquote>
+<p>Once the data has been loaded, our text data then needs to be transformed into a format which is ready for analysis. While most of the manifestos in the corpus contain just one row with all of the text stored in a single value, texts which have been annotated contain many rows, each corresponding with a complete thought (e.g., sentence or clause). Though these annotations may be relevant in other contexts, we will disregard them for this analysis. The code below addresses this by wrangling the data into a format where each manifesto corresponds with only one row.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wrangle data</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>text_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(corpus)) {</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  doc <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(corpus[[i]], <span class="at">with.meta =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="cn">TRUE</span> <span class="sc">%in%</span> doc<span class="sc">$</span>annotations) {</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    doc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">text =</span> <span class="fu">paste</span>(<span class="fu">c</span>(doc<span class="sc">$</span>text), <span class="at">collapse =</span> <span class="st">" "</span>), </span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">manifesto_id =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>manifesto_id),</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">party =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>party),</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">year =</span> <span class="fu">year</span>(<span class="fu">ym</span>(<span class="fu">unique</span>(doc<span class="sc">$</span>date))),</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>title)</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>     doc <span class="ot">&lt;-</span> doc <span class="sc">|&gt;</span> </span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>       <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(<span class="fu">ym</span>(date))) <span class="sc">|&gt;</span> </span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>       <span class="fu">select</span>(text, manifesto_id, party, year, title)</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  text_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(text_df, doc)</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="co"># add party name info</span></span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>text_df <span class="ot">&lt;-</span> <span class="fu">left_join</span>(text_df, <span class="fu">distinct</span>(main_df, party, partyname))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wrangle data</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>text_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(corpus)) {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  doc <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(corpus[[i]], <span class="at">with.meta =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="cn">TRUE</span> <span class="sc">%in%</span> doc<span class="sc">$</span>annotations) {</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    doc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">text =</span> <span class="fu">paste</span>(<span class="fu">c</span>(doc<span class="sc">$</span>text), <span class="at">collapse =</span> <span class="st">" "</span>), </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">manifesto_id =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>manifesto_id),</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">party =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>party),</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">year =</span> <span class="fu">year</span>(<span class="fu">ym</span>(<span class="fu">unique</span>(doc<span class="sc">$</span>date))),</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">unique</span>(doc<span class="sc">$</span>title)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>     doc <span class="ot">&lt;-</span> doc <span class="sc">|&gt;</span> </span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>       <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(<span class="fu">ym</span>(date))) <span class="sc">|&gt;</span> </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>       <span class="fu">select</span>(text, manifesto_id, party, year, title)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  text_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(text_df, doc)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="co"># add party name info</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>text_df <span class="ot">&lt;-</span> <span class="fu">left_join</span>(text_df, <span class="fu">distinct</span>(main_df, party, partyname))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now on to pre-processing. For this step, I make use of <code>stm</code>’s <code>textProcessor</code>. Note that the pre-processing pipeline involves <em>lowercasing</em> words, <em>removing stop words</em>, <em>removing numbers</em>, <em>removing punctuation</em>, and <em>stemming</em> words (reducing words to their root form) so as “de-noise” the data. Note that “will” and “must” have been added to the list of stop words, as…</p>
+<p>Now on to pre-processing. For this step, we will make use of <code>stm</code>’s <code>textProcessor</code> function. Note that our pre-processing pipeline involves <em>lowercasing</em> words, <em>removing stop words</em>, <em>removing numbers</em>, <em>removing punctuation</em>, and <em>stemming</em> words (i.e., reducing words to their root form) so as “de-noise” the data. Note that several common words including “will”, “must”, and “shall” have been added to the list of stop words as they appear very frequently throughout the manifestos but do not contain much valuable information in and of themselves. As a result, we intentionally discard them from our analysis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pre-processing</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>processed <span class="ot">&lt;-</span> <span class="fu">textProcessor</span>(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> text_df<span class="sc">$</span>text, </span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">metadata =</span> <span class="fu">select</span>(text_df, <span class="sc">-</span>text),</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lowercase =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">removestopwords =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">removenumbers =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">removepunctuation =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">stem =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">language =</span> <span class="st">"en"</span>,</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">customstopwords =</span> <span class="fu">c</span>(<span class="st">"will"</span>, <span class="st">"must"</span>, <span class="st">"shall"</span>), <span class="co"># </span><span class="al">TODO</span><span class="co">: add comment </span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">TRUE</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pre-processing</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>processed <span class="ot">&lt;-</span> <span class="fu">textProcessor</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> text_df<span class="sc">$</span>text, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">metadata =</span> <span class="fu">select</span>(text_df, <span class="sc">-</span>text),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lowercase =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">removestopwords =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">removenumbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">removepunctuation =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">stem =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">language =</span> <span class="st">"en"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">customstopwords =</span> <span class="fu">c</span>(<span class="st">"favor"</span>, <span class="st">"get"</span>, <span class="st">"know"</span>, <span class="st">"must"</span>, <span class="st">"platform"</span>, <span class="st">"shall"</span>, <span class="st">"that"</span>, <span class="st">"want"</span>, <span class="st">"will"</span>), <span class="co"># remove custom stop words</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">TRUE</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Building corpus... 
 Converting to Lower Case... 
@@ -1662,10 +1662,10 @@ Stemming...
 Creating Output... </code></pre>
 </div>
 </div>
-<p>Next, <code>prepDocuments</code> conveniently prepares the texts for analysis. At this stage, terms which appear infrequently are also removed to further “de-noise” the data. To determine precisely where to set this minimum threshold, <code>stm</code>’s <code>plotRemoved</code> function comes in handy by allowing the user to plot the number of words and documents removed for different thresholds.</p>
+<p>Next, the <code>prepDocuments</code> function conveniently prepares our texts for analysis. At this stage, terms which appear infrequently across manifestos are also removed to further “de-noise” the data. Doing so will allow us to focus more attention on terms that persist in both parties’ manifestos throughout the study period. To determine precisely where to set this minimum frequency threshold, <code>stm</code>’s <code>plotRemoved</code> function comes in handy by allowing us to plot the number of words and documents removed at different thresholds.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot words and docs removed at different thresholds</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRemoved</span>(processed<span class="sc">$</span>documents, <span class="at">lower.thresh =</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="dv">50</span>, <span class="at">by =</span> <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot words and docs removed at different thresholds</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRemoved</span>(processed<span class="sc">$</span>documents, <span class="at">lower.thresh =</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="dv">50</span>, <span class="at">by =</span> <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -1674,31 +1674,29 @@ Creating Output... </code></pre>
 </div>
 </div>
 </div>
-<p>Based on the plot, it is apparent that setting <code>lower.thresh = 30</code> will result in all manifestos and words being discarded. At the same time, proceeding without a threshold will result in the inclusion of terms which may not in fact contribute to the analysis. Given this, some number below thirty seems reasonable in this context.</p>
+<p>Based on the plot above, setting <code>lower.thresh = 30</code> will result in all words and manifestos being discarded. At the same time, proceeding with our analysis without implementing some sort of minimum frequency threshold will result in the inclusion of terms which may not be relevant to our analysis. In light of this, it seems reasonable to set the minimum frequency threshold equal to some value between zero and thirty. Accordingly, we’ll set <code>lower.thresh = 10</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare docs for topic modeling</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">prepDocuments</span>(</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> processed<span class="sc">$</span>documents, </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> processed<span class="sc">$</span>vocab, </span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">meta =</span> processed<span class="sc">$</span>meta,</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower.thresh =</span> <span class="dv">10</span> <span class="co"># min term frequency</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare docs for topic modeling</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">prepDocuments</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> processed<span class="sc">$</span>documents, </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> processed<span class="sc">$</span>vocab, </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">meta =</span> processed<span class="sc">$</span>meta,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower.thresh =</span> <span class="dv">10</span> <span class="co"># min term frequency</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Removing 9905 of 12523 terms (26114 of 83173 tokens) due to frequency 
-Your corpus now has 32 documents, 2618 terms and 57059 tokens.</code></pre>
+<pre><code>Removing 9904 of 12521 terms (26114 of 83114 tokens) due to frequency 
+Your corpus now has 32 documents, 2617 terms and 57000 tokens.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>docs <span class="ot">&lt;-</span> out<span class="sc">$</span>documents</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>vocab <span class="ot">&lt;-</span> out<span class="sc">$</span>vocab</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>meta <span class="ot">&lt;-</span> out<span class="sc">$</span>meta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The processed text is now contained in a variable called <code>docs</code>, the complete vocabulary is of stemmed words is now stored in a variable called <code>vocab</code>, and the metadata with information on the party, year, and title associated with a given manifesto can be found in a variable called <code>meta</code>.</p>
+<p>Note that <strong>79% of our terms</strong> (9,904/12,521) have been removed at this stage. To check for robustness, it would make sense to re-run the analysis with different minimum frequency thresholds to check the extent to which varying this value affects our results.</p>
+<p>Our processed text is now contained in the <code>out$docs</code> variable, our complete vocabulary of stemmed words is now stored in the <code>out$vocab</code> variable, and our metadata with information on the party, year, and title associated with a given manifesto can be found in the <code>out$meta</code> variable.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(vocab, <span class="dv">10</span>) <span class="co"># random sample of vocab</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(out<span class="sc">$</span>vocab, <span class="dv">10</span>) <span class="co"># inspect random sample of vocab</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] "staf"       "racism"     "neglect"    "cyprus"     "tenur"     
- [6] "intellectu" "fit"        "reinvigor"  "spous"      "constant"  </code></pre>
+<pre><code> [1] "ravag"      "loss"       "generat"    "career"     "-call"     
+ [6] "valu"       "may"        "satisfi"    "imag"       "restructur"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(meta)) <span class="co"># inspect metadata</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(out<span class="sc">$</span>meta)) <span class="co"># inspect metadata</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table data-quarto-postprocess="true" class="table table-sm table-striped small">
 <thead>
@@ -1765,26 +1763,29 @@ Your corpus now has 32 documents, 2618 terms and 57059 tokens.</code></pre>
 <blockquote class="blockquote">
 <p>Describe a research question you want to explore with topic modelling. Comment on how answerable this is with the methods and data at your disposal.</p>
 </blockquote>
-<p>While there is plenty of research documenting the ways in which the Democratic and Republican parties have become increasingly polarized in recent decades, I am interested in applying topic modeling to assess whether this polarization is reflected in the parties’ manifestos. Put more concretely: <strong>Does the amount of space that Democratic and Republican parties dedicate towards certain topics in their party manifestos diverge over time?</strong></p>
+<p>While there is plenty of research documenting the ways in which the Democratic and Republican parties have become increasingly polarized in recent decades, I am interested in applying topic modeling to assess whether this polarization is reflected in the parties’ manifestos. Put more concretely: <strong>Does the amount of text that Democratic and Republican parties dedicate towards various topics in their party manifestos diverge over time?</strong></p>
+<p>While party manifestos are long documents that contain much information on a political party’s overall platform, I am a bit concerned that topic modeling may be too blunt of a tool to answer this question using just 32 manifestos. That said, I’m curious to see what topic modeling can tell us about the research question at hand.</p>
 </section>
 <section id="topic-model-development" class="level2">
 <h2 class="anchored" data-anchor-id="topic-model-development">3. Topic model development</h2>
 <blockquote class="blockquote">
 <p>Create a topic model using your data. Explain to a non-specialist what the topic model does. Comment on the choices you make here in terms of hyperparameter selection and model choice. How might these affect your results and the ability to answer your research question?</p>
 </blockquote>
-<p>I use the <code>stm</code> package to estimate a structural topic model. Metadata covariates for topic prevalence allow the observed metadata to affect the frequency with which a topic is discussed. For this analysis, <code>party</code> is a covariate in the topic prevalence portion of the model. Each document is modeled as a mixture of multiple topics. Topical prevalence captures how much each topic contributes to a document. Because different documents come from different sources, it is natural to want to allow this prevalence to vary with metadata that we have about document sources. Prevalence is a function of the <code>party</code> variable (either “Democratic Party” or “Republican Party”) as well as the <code>year</code> variable. I estimate a <strong>XX</strong> topic STM model. Variables are included additively. While this may not be the most sophisticated model for answering our question, it should provide an indication of whether the hypothesis is reasonable.</p>
+<p>For this analysis, we’ll use the <code>stm</code> package to estimate a structural topic model. The basic idea underlying our approach is that each manifesto consists of multiple topics where a topic is defined as a distribution over a predefined vocabulary. We assume that all manifestos within our corpus share an identical set of topics, however, each individual manifesto showcases these topics in varying proportions.</p>
+<p>Since different manifestos are authored by different parties, we would like the topic prevalence to vary based on metadata we have for these manifestos, namely on <code>party</code> and <code>year</code> information. These variables are included additively into the prevalence component of our model, with <code>year</code> estimated with a spline to allow for non-linearity. This should allow our model to account for temporal shifts in topics.</p>
+<p>To determine how many topics to model for, we use <code>stm</code>’s <code>searchK</code> function which will simulate modeling different levels of <code>K</code>. Our choice of <code>K</code> may have a significant impact on our results, with too few topics potentially resulting in a loss of granularity and too many potentially resulting in a set of incoherent topics. By using the <code>searchK</code> function, we aim to take a more quantitative approach towards selecting an appropriate number of topics so that our results are not simply an artifact of an arbitrary model choice. We test for various levels of <code>K</code> between 10 and 30, since this seems to be a reasonable level of granularity for the task at hand.</p>
 <div class="cell" data-layout-align="center" data-fig.out="100%">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>search_results <span class="ot">&lt;-</span> <span class="fu">searchK</span>(</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> docs, </span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> vocab, </span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> meta,</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">K =</span> <span class="fu">seq</span>(<span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">5</span>),</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prevalence =</span> <span class="sc">~</span> partyname <span class="sc">+</span> year,</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">heldout.seed =</span> <span class="dv">10</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.searchK</span>(search_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>search_results <span class="ot">&lt;-</span> <span class="fu">searchK</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> out<span class="sc">$</span>documents, </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> out<span class="sc">$</span>vocab, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> out<span class="sc">$</span>meta,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">K =</span> <span class="fu">seq</span>(<span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">5</span>), <span class="co"># different levels of K to try out</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prevalence =</span> <span class="sc">~</span> partyname <span class="sc">+</span> <span class="fu">s</span>(year),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">heldout.seed =</span> <span class="dv">20</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.searchK</span>(search_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -1793,21 +1794,21 @@ Your corpus now has 32 documents, 2618 terms and 57059 tokens.</code></pre>
 </div>
 </div>
 </div>
-<p>For the sake of this exercise, we’ll look to maximize the semantic coherence which appears to peak when the number of topics <code>K = 20</code> . Year is modeled linearly for simplicity.</p>
+<p>For the sake of this exercise, we’ll select the <code>K</code> that maximizes semantic coherence, a measure that works by assessing whether the words in a topic frequently co-occur. Accordingly, we’ll estimate a <strong>20</strong> <strong>topic STM model</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define number of topics</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>n_topics <span class="ot">&lt;-</span> <span class="dv">20</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create topic model</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> docs, </span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> vocab,</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> meta, </span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">K =</span> n_topics, <span class="co"># number of latent topics</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">prevalence =</span> <span class="sc">~</span> partyname <span class="sc">+</span> year,</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">init.type =</span> <span class="st">"Spectral"</span>, <span class="co"># spectral initialization</span></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define number of topics</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>n_topics <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create topic model</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">documents =</span> out<span class="sc">$</span>documents, </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">vocab =</span> out<span class="sc">$</span>vocab,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> out<span class="sc">$</span>meta, </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">K =</span> n_topics, <span class="co"># number of latent topics</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">prevalence =</span> <span class="sc">~</span> partyname <span class="sc">+</span> <span class="fu">s</span>(year),</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">init.type =</span> <span class="st">"Spectral"</span>, <span class="co"># spectral initialization</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="topic-model-description" class="level2">
@@ -1815,191 +1816,610 @@ Your corpus now has 32 documents, 2618 terms and 57059 tokens.</code></pre>
 <blockquote class="blockquote">
 <p>Describe the topic model. What topics does it contain? How are these distributed across the data?</p>
 </blockquote>
-<p>To better understand the topic model, we can look at which words are associated with each topic. While there are several methods for determining which words are most representative of a given topic, I use the FREX method which weights words by their overall frequency as well as how exclusive they are to a given topic. This should prevent words which appear very often across all texts (e.g., “america”, “presid”, “govern”) from dominating our list of words.</p>
-<p>The plot below shows the expected proportion of the corpus belonging to each topic. As such, topic 12 appears to be the topic most commonly discussed in party manifestos.</p>
-<p>We can also see how Democrats and Republicans talk about these topics differently. We can also plot word clouds of the words most likely to occur in a party manifesto related to various topics.</p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># top words per topic</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.STM</span>(topic_model, <span class="at">type =</span> <span class="st">"labels"</span>, <span class="at">n =</span> <span class="dv">5</span>, <span class="at">labeltype =</span> <span class="st">"frex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="KERR-Assignment-4v6_files/figure-html/word_assoc-1.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
-</figure>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create topic labels</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>topic_labels <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot top topics</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(topic_model, <span class="at">type =</span> <span class="st">"summary"</span>, <span class="at">labeltype =</span> <span class="st">"frex"</span>, <span class="at">n =</span> <span class="dv">5</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="KERR-Assignment-4v6_files/figure-html/word_assoc-2.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
-</figure>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compare words between topics</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.STM</span>(topic_model, <span class="at">type =</span> <span class="st">"perspectives"</span>, <span class="at">topics =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">covarlevels =</span> <span class="fu">c</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="KERR-Assignment-4v6_files/figure-html/word_assoc-3.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
-</figure>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wordcloud </span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cloud</span>(topic_model, <span class="at">topic =</span> <span class="dv">3</span>, <span class="at">scale =</span> <span class="fu">c</span>(<span class="dv">2</span>, .<span class="dv">25</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="KERR-Assignment-4v6_files/figure-html/word_assoc-4.png" style="width:100.0%;height:100.0%" class="figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
+<p>To better understand our structured topic model, we can look at which words are associated with each topic. While there are several methods when it comes to assigning names to topics, we’ll pay special attention to the words generated by the FREX method. The FREX method is useful because it weights words by their overall frequency as well as how exclusive they are to a given topic. This should prevent words which appear very often across all texts (e.g., “america”, “nation”, “govern”) from dominating our list of words.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the Dirichlet distribution to allocate the words of the manifestos to different topics. "Texts do not require any prior annotations or labeling of the documents—the topics emerge from the analysis of the original texts". The idea is that "Documents exhibit multiple topics" Topic = a distribution over a fixed vocabulary. Each document exhibits the topics in different proportion (step #1); each word in each document is drawn from one of the topics (step #2b), where the selected topic is chosen from the per-document distribution over topics (step #2a). All the documents in the collection share the same set of topics, but each document exhibits those topics in different proportion. what is the hidden structure that likely generated the observed collection?</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">#The definition of a “good” topic is not universal but task dependent.</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">#A good topic model is one that helps us to answer the research question we have in mind, or helps us to better perform the task we have.</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Sometimes we want the big picture (few topics), sometimes we want fine-grained detail (many topics).</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">#What we should ensure is that any results we present are not an artefact of an arbitrary model choice we make, but are robust to a variety of reasonable specifications.</span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co"># evaluate performance</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">#A quick heuristic for naming topics is to concatenate the top 3 terms for each topic.</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">#If we want to use our model then we should give meaningful names to topics by inspecting the top terms and top documents associated with each topic.</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">#Loss/heldout-likelihood based measures work by comparing the topic predictions of words in documents to the actually observed numbers of words in documents.</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Coherence based measures work by assessing whether the words in a topic are similar. If words in a topic only infrequently co-occur in documents, then this topic is considered less coherent.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">labelTopics</span>(topic_model, <span class="at">n =</span> <span class="dv">7</span>)<span class="sc">$</span>frex <span class="sc">|&gt;</span> <span class="co"># extract top 7 words based on FREX method</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unite</span>(<span class="st">"top_terms"</span>, V1<span class="sc">:</span>V7, <span class="at">sep =</span> <span class="st">", "</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">topic_id =</span> <span class="dv">1</span><span class="sc">:</span>n_topics) <span class="sc">|&gt;</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(topic_id, <span class="at">.before =</span> top_terms) <span class="sc">|&gt;</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">topic_id</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">top_terms</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">clinton, bill, congression, veto, liber, republican, bureaucrat</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">continu, expans, serv, contribut, assur, republ, communic</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">climat, color, student, nativ, tribal, access, gender</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">carter, soviet, inflat, regul, republican, energi, union</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">john, iraq, terrorist, compani, weapon, creat, global</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">instanc, communist, communism, freedom, victori, individu, faith</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">coast, fuel, believ, altern, care, drug, suppli</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">anew, vigor, enabl, urgent, enterpris, pledg, vietnam</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: left;">bush, presid, applaud, terrorist, terror, congress, republican</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">reagan, minor, democrat, parti, deficit, justic, high</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">atom, facil, construct, age, action, communist, labor</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">current, constitut, religi, regul, amend, abort, call</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: left;">democraci, revolut, breed, invest, era, south, civilian</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">energi, minor, unemploy, cent, parti, oil, relat</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">current, governor, patient, advoc, trial, peril, congression</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: left;">that, teacher, prosper, school, worker, skill, fight</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: left;">percent, pledg, propos, year, vietnam, seri, indian</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: left;">presid, cut, vice, four, middl, class, put</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: left;">soviet, percent, ranch, rate, free, republican, inflat</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">price, incom, farm, corpor, basi, fund, full</td>
+</tr>
+</tbody>
+</table>
+
+
 </div>
+</div>
+<p>Next, we’ll manually assign meaningful labels to our topics by inspecting the top seven words generated for each. While there is technically no “right” answer when it comes to labeling our topics, we try to choose labels that make intuitive sense and will aid in answering our research question.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create topic labels</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>topic_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Clinton administration"</span>, <span class="co"># 1</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Freedom"</span>, <span class="co"># 2</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Minorities"</span>, <span class="co"># 3</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Carter administration"</span>, <span class="co"># 4</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Iraq War"</span>, <span class="co"># 5</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Communism"</span>, <span class="co"># 6</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Counterculture"</span>, <span class="co"># 7</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Vietnam War"</span>, <span class="co"># 8</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Bush Jr. administration"</span>, <span class="co"># 9</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Budget deficit"</span>, <span class="co"># 10</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Nuclear energy"</span>, <span class="co"># 11</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"US Constitution"</span>, <span class="co"># 12</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Democracy"</span>, <span class="co"># 13</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Energy"</span>, <span class="co"># 14</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Law"</span>, <span class="co"># 15</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Education"</span>, <span class="co"># 16</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"State intervention"</span>, <span class="co"># 17</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Vice President"</span>, <span class="co"># 18</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Cold War"</span>, <span class="co"># 19</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Agriculture"</span> <span class="co"># 20</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Once the topics are labeled, we’ll generate several plots to analyze trends in our topics. The plot below shows the expected proportion of the corpus belonging to each topic. <strong>Topic 12</strong>, relating to the <strong>US Constitution</strong>, appears to be the topic most commonly discussed in party manifestos.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot top topics</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(topic_model, <span class="at">type =</span> <span class="st">"summary"</span>, <span class="at">labeltype =</span> <span class="st">"frex"</span>, <span class="at">n =</span> <span class="dv">5</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">3</span>), <span class="at">custom.labels =</span> topic_labels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="KERR-Assignment-4v6_files/figure-html/top_topics-1.png" style="width:100.0%;height:250.0%" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Furthermore, we can explore the topic distributions of our structured topic model using the <code>toLDAvis</code> function which reduces the dimensionality of the topics so that we can see the extent to which topics may be considered similar to one another (or at least share many of the same words). Interestingly, <strong>topic 18</strong> which relates to the <strong>vice president</strong> is quite removed from most of the other topics, while there appears to be significant overlap between <strong>topics 12</strong> and <strong>13</strong> which relate to the <strong>US Constitution</strong> and <strong>democracy</strong>, respectively.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">toLDAvis</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  topic_model,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  out<span class="sc">$</span>documents,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">30</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.opts =</span> <span class="fu">list</span>(<span class="at">xlab =</span> <span class="st">"PC1"</span>, <span class="at">ylab =</span> <span class="st">"PC2"</span>),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">lambda.step =</span> <span class="fl">0.1</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.dir =</span> <span class="fu">tempfile</span>(),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">open.browser =</span> <span class="fu">interactive</span>(),</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">as.gist =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">reorder.topics =</span> <span class="cn">TRUE</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><img src="img/LDAvis.png" class="img-fluid"></p>
 </section>
 <section id="answering-your-research-question" class="level2">
 <h2 class="anchored" data-anchor-id="answering-your-research-question">5. Answering your research question</h2>
 <blockquote class="blockquote">
 <p>Use your topic model to answer your research question by showing plots or statistical results. Discuss the implications of what you find, and any limitations inherent in your approach. Discuss how the work could be improved upon in future research.</p>
 </blockquote>
-<p>We can estimate relationships between metadata and topics using <code>estimateEffect</code>. We use a first difference type estimate where topic prevalence for a given topic is contrasted between Democrat and Republican manifestos. We plot the change in topic proportion that comes with shifting from one party to the other. We can also plot the prevalence of topics over time.</p>
+<p>We can estimate relationships between our topics and our metadata, namely the <code>partyname</code> and <code>year</code> variables, using the <code>stm</code> package’s <code>estimateEffect</code> function. Here we use a first difference type estimate where topic prevalence for a given topic is contrasted between Democratic and Republican manifestos.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate effect</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>estim <span class="ot">&lt;-</span> <span class="fu">estimateEffect</span>(</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="dv">1</span><span class="sc">:</span>n_topics <span class="sc">~</span> partyname <span class="sc">+</span> year,  </span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">stmobj =</span> topic_model,  </span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">metadata =</span> meta,</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">uncertainty =</span> <span class="st">"Global"</span> <span class="co"># account for topic proportions</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co"># regression table</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(estim, <span class="at">topics =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate effect</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>estim <span class="ot">&lt;-</span> <span class="fu">estimateEffect</span>(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="dv">1</span><span class="sc">:</span>n_topics <span class="sc">~</span> partyname <span class="sc">+</span> <span class="fu">s</span>(year),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">stmobj =</span> topic_model,  </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">metadata =</span> out<span class="sc">$</span>meta,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">uncertainty =</span> <span class="st">"Global"</span> <span class="co"># account for topic proportions</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co"># regression tables</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(estim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-estimateEffect(formula = 1:n_topics ~ partyname + year, stmobj = topic_model, 
-    metadata = meta, uncertainty = "Global")
+estimateEffect(formula = 1:n_topics ~ partyname + s(year), stmobj = topic_model, 
+    metadata = out$meta, uncertainty = "Global")
 
 
 Topic 1:
 
 Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)               -0.034534   0.119767  -0.288    0.776  
+partynameRepublican Party  0.069780   0.060975   1.144    0.266  
+s(year)1                   0.021642   0.295002   0.073    0.942  
+s(year)2                  -0.032015   0.285858  -0.112    0.912  
+s(year)3                   0.038055   0.246231   0.155    0.879  
+s(year)4                  -0.055361   0.232911  -0.238    0.815  
+s(year)5                   0.046958   0.244016   0.192    0.849  
+s(year)6                   0.613845   0.267939   2.291    0.033 *
+s(year)7                  -0.366798   0.254578  -1.441    0.165  
+s(year)8                   0.283637   0.300057   0.945    0.356  
+s(year)9                  -0.147767   0.288074  -0.513    0.614  
+s(year)10                  0.004849   0.165006   0.029    0.977  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 2:
+
+Coefficients:
+                          Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                0.15878    0.18488   0.859    0.401
+partynameRepublican Party -0.03069    0.07591  -0.404    0.690
+s(year)1                   0.63952    0.46304   1.381    0.182
+s(year)2                  -0.26159    0.43282  -0.604    0.552
+s(year)3                   0.12985    0.41192   0.315    0.756
+s(year)4                  -0.22084    0.29870  -0.739    0.468
+s(year)5                  -0.10830    0.31241  -0.347    0.732
+s(year)6                  -0.15805    0.29902  -0.529    0.603
+s(year)7                  -0.13302    0.31885  -0.417    0.681
+s(year)8                  -0.15355    0.37155  -0.413    0.684
+s(year)9                  -0.11021    0.37239  -0.296    0.770
+s(year)10                 -0.13983    0.22934  -0.610    0.549
+
+
+Topic 3:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)                0.065294   0.133435   0.489   0.6299  
+partynameRepublican Party -0.127261   0.068020  -1.871   0.0761 .
+s(year)1                  -0.001904   0.325654  -0.006   0.9954  
+s(year)2                  -0.002354   0.314034  -0.007   0.9941  
+s(year)3                   0.001847   0.266560   0.007   0.9945  
+s(year)4                  -0.007262   0.251521  -0.029   0.9773  
+s(year)5                   0.012909   0.253029   0.051   0.9598  
+s(year)6                  -0.016524   0.257860  -0.064   0.9495  
+s(year)7                   0.026219   0.284350   0.092   0.9275  
+s(year)8                   0.182012   0.377993   0.482   0.6354  
+s(year)9                   0.286741   0.351430   0.816   0.4242  
+s(year)10                  0.491049   0.182195   2.695   0.0139 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 4:
+
+Coefficients:
                            Estimate Std. Error t value Pr(&gt;|t|)
-(Intercept)               -2.020102   3.794637  -0.532    0.599
-partynameRepublican Party  0.065513   0.076374   0.858    0.398
-year                       0.001027   0.001908   0.538    0.595</code></pre>
+(Intercept)               -0.040896   0.128008  -0.319    0.753
+partynameRepublican Party  0.076567   0.063674   1.202    0.243
+s(year)1                   0.181389   0.319736   0.567    0.577
+s(year)2                  -0.305939   0.328249  -0.932    0.362
+s(year)3                   0.364150   0.309743   1.176    0.254
+s(year)4                   0.319292   0.252214   1.266    0.220
+s(year)5                  -0.190987   0.246089  -0.776    0.447
+s(year)6                   0.118176   0.246478   0.479    0.637
+s(year)7                  -0.072194   0.258191  -0.280    0.783
+s(year)8                   0.072212   0.308194   0.234    0.817
+s(year)9                  -0.027939   0.302523  -0.092    0.927
+s(year)10                  0.007367   0.176949   0.042    0.967
+
+
+Topic 5:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)                0.048696   0.119173   0.409  0.68717   
+partynameRepublican Party -0.097043   0.059937  -1.619  0.12109   
+s(year)1                   0.045737   0.297089   0.154  0.87919   
+s(year)2                  -0.044236   0.283394  -0.156  0.87752   
+s(year)3                   0.053495   0.241156   0.222  0.82670   
+s(year)4                  -0.080777   0.224752  -0.359  0.72306   
+s(year)5                   0.146714   0.225254   0.651  0.52225   
+s(year)6                  -0.291130   0.229408  -1.269  0.21899   
+s(year)7                   0.733098   0.255525   2.869  0.00949 **
+s(year)8                  -0.226726   0.292636  -0.775  0.44754   
+s(year)9                   0.167207   0.308153   0.543  0.59339   
+s(year)10                  0.002383   0.162560   0.015  0.98845   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 6:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)                0.036133   0.129486   0.279  0.78307   
+partynameRepublican Party  0.076741   0.055011   1.395  0.17832   
+s(year)1                   0.887831   0.286190   3.102  0.00562 **
+s(year)2                  -0.393477   0.275587  -1.428  0.16879   
+s(year)3                   0.061090   0.238280   0.256  0.80028   
+s(year)4                  -0.148997   0.226941  -0.657  0.51896   
+s(year)5                  -0.009485   0.228586  -0.041  0.96731   
+s(year)6                  -0.085456   0.230084  -0.371  0.71424   
+s(year)7                  -0.068668   0.234390  -0.293  0.77257   
+s(year)8                  -0.072303   0.281480  -0.257  0.79991   
+s(year)9                  -0.072750   0.277423  -0.262  0.79582   
+s(year)10                 -0.072797   0.167927  -0.434  0.66929   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 7:
+
+Coefficients:
+                            Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)                1.434e-02  1.368e-01   0.105   0.9176  
+partynameRepublican Party -2.638e-02  6.831e-02  -0.386   0.7035  
+s(year)1                   3.466e-05  3.333e-01   0.000   0.9999  
+s(year)2                   4.135e-04  3.264e-01   0.001   0.9990  
+s(year)3                   6.574e-03  2.704e-01   0.024   0.9808  
+s(year)4                  -7.201e-02  2.598e-01  -0.277   0.7845  
+s(year)5                   6.317e-01  2.761e-01   2.288   0.0332 *
+s(year)6                  -3.773e-01  2.685e-01  -1.405   0.1753  
+s(year)7                   2.646e-01  2.900e-01   0.912   0.3725  
+s(year)8                  -7.238e-03  3.432e-01  -0.021   0.9834  
+s(year)9                   1.436e-02  3.320e-01   0.043   0.9659  
+s(year)10                  1.086e-03  1.859e-01   0.006   0.9954  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 8:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)                0.000777   0.115930   0.007  0.99472   
+partynameRepublican Party  0.055137   0.056389   0.978  0.33986   
+s(year)1                  -0.437274   0.292473  -1.495  0.15050   
+s(year)2                   1.007709   0.320508   3.144  0.00511 **
+s(year)3                  -0.445725   0.241898  -1.843  0.08026 . 
+s(year)4                   0.181554   0.220743   0.822  0.42051   
+s(year)5                  -0.140109   0.216392  -0.647  0.52469   
+s(year)6                   0.041659   0.220513   0.189  0.85206   
+s(year)7                  -0.069950   0.226076  -0.309  0.76021   
+s(year)8                   0.009839   0.274655   0.036  0.97178   
+s(year)9                  -0.047921   0.272906  -0.176  0.86238   
+s(year)10                 -0.025722   0.156755  -0.164  0.87130   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 9:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)               -0.031099   0.110520  -0.281   0.7813  
+partynameRepublican Party  0.062249   0.057513   1.082   0.2920  
+s(year)1                   0.020988   0.273808   0.077   0.9397  
+s(year)2                  -0.033515   0.263710  -0.127   0.9001  
+s(year)3                   0.047115   0.228390   0.206   0.8386  
+s(year)4                  -0.081058   0.213578  -0.380   0.7083  
+s(year)5                   0.165195   0.221264   0.747   0.4640  
+s(year)6                  -0.178094   0.220621  -0.807   0.4290  
+s(year)7                   0.656142   0.248019   2.646   0.0155 *
+s(year)8                  -0.450224   0.278515  -1.617   0.1216  
+s(year)9                   0.249767   0.267085   0.935   0.3609  
+s(year)10                 -0.004088   0.150651  -0.027   0.9786  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 10:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)                0.018655   0.118830   0.157   0.8768  
+partynameRepublican Party -0.029808   0.058501  -0.510   0.6160  
+s(year)1                  -0.166730   0.288830  -0.577   0.5702  
+s(year)2                   0.290748   0.289817   1.003   0.3277  
+s(year)3                  -0.389410   0.248823  -1.565   0.1333  
+s(year)4                   0.644402   0.254318   2.534   0.0198 *
+s(year)5                  -0.100181   0.235601  -0.425   0.6752  
+s(year)6                   0.039113   0.227223   0.172   0.8651  
+s(year)7                  -0.026899   0.236299  -0.114   0.9105  
+s(year)8                   0.025331   0.282846   0.090   0.9295  
+s(year)9                  -0.005966   0.280120  -0.021   0.9832  
+s(year)10                  0.006191   0.160742   0.039   0.9697  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 11:
+
+Coefficients:
+                          Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                0.70504    0.13884   5.078 5.74e-05 ***
+partynameRepublican Party -0.05120    0.04206  -1.217 0.237658    
+s(year)1                  -0.85511    0.26128  -3.273 0.003807 ** 
+s(year)2                  -0.46606    0.27048  -1.723 0.100307    
+s(year)3                  -0.75940    0.22096  -3.437 0.002610 ** 
+s(year)4                  -0.63771    0.19016  -3.353 0.003163 ** 
+s(year)5                  -0.69793    0.19746  -3.535 0.002082 ** 
+s(year)6                  -0.66562    0.19330  -3.443 0.002571 ** 
+s(year)7                  -0.68499    0.20134  -3.402 0.002827 ** 
+s(year)8                  -0.67169    0.22813  -2.944 0.008017 ** 
+s(year)9                  -0.68239    0.22714  -3.004 0.007008 ** 
+s(year)10                 -0.67934    0.16152  -4.206 0.000435 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 12:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)               -0.088640   0.153023  -0.579   0.5689  
+partynameRepublican Party  0.172188   0.074307   2.317   0.0312 *
+s(year)1                   0.006988   0.368692   0.019   0.9851  
+s(year)2                  -0.004073   0.357769  -0.011   0.9910  
+s(year)3                   0.008121   0.304893   0.027   0.9790  
+s(year)4                   0.002612   0.287387   0.009   0.9928  
+s(year)5                   0.004199   0.290650   0.014   0.9886  
+s(year)6                   0.002129   0.289192   0.007   0.9942  
+s(year)7                  -0.012610   0.309735  -0.041   0.9679  
+s(year)8                   0.338865   0.387350   0.875   0.3921  
+s(year)9                   0.548724   0.370614   1.481   0.1543  
+s(year)10                  0.455813   0.208496   2.186   0.0409 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 13:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)                0.028289   0.126176   0.224   0.8249  
+partynameRepublican Party -0.059835   0.061613  -0.971   0.3431  
+s(year)1                   0.079542   0.310043   0.257   0.8001  
+s(year)2                  -0.129338   0.300796  -0.430   0.6718  
+s(year)3                   0.174154   0.256673   0.679   0.5052  
+s(year)4                  -0.276579   0.240011  -1.152   0.2628  
+s(year)5                   0.489907   0.243391   2.013   0.0578 .
+s(year)6                  -0.062532   0.241263  -0.259   0.7981  
+s(year)7                   0.032976   0.257471   0.128   0.8994  
+s(year)8                   0.032796   0.306260   0.107   0.9158  
+s(year)9                  -0.024417   0.301333  -0.081   0.9362  
+s(year)10                  0.005252   0.174660   0.030   0.9763  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 14:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                0.046382   0.132189   0.351    0.729
+partynameRepublican Party -0.084250   0.066306  -1.271    0.218
+s(year)1                   0.217149   0.328674   0.661    0.516
+s(year)2                  -0.387804   0.336393  -1.153    0.263
+s(year)3                   0.476051   0.309034   1.540    0.139
+s(year)4                   0.244498   0.254402   0.961    0.348
+s(year)5                  -0.165011   0.247434  -0.667    0.512
+s(year)6                   0.092708   0.251006   0.369    0.716
+s(year)7                  -0.054911   0.265621  -0.207    0.838
+s(year)8                   0.047396   0.317003   0.150    0.883
+s(year)9                  -0.036986   0.315028  -0.117    0.908
+s(year)10                 -0.003558   0.179709  -0.020    0.984
+
+
+Topic 15:
+
+Coefficients:
+                            Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                0.0071829  0.1206117   0.060    0.953
+partynameRepublican Party  0.0824524  0.0581721   1.417    0.172
+s(year)1                  -0.0809677  0.2804825  -0.289    0.776
+s(year)2                   0.0001504  0.2742479   0.001    1.000
+s(year)3                  -0.1083899  0.2313663  -0.468    0.645
+s(year)4                   0.0497232  0.2223882   0.224    0.825
+s(year)5                  -0.2167374  0.2224093  -0.974    0.341
+s(year)6                   0.2453206  0.2421068   1.013    0.323
+s(year)7                  -0.0111673  0.2378438  -0.047    0.963
+s(year)8                   0.1491001  0.2933058   0.508    0.617
+s(year)9                  -0.1417660  0.2773082  -0.511    0.615
+s(year)10                 -0.0461032  0.1598586  -0.288    0.776
+
+
+Topic 16:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                0.027618   0.130975   0.211    0.835
+partynameRepublican Party -0.056927   0.064194  -0.887    0.386
+s(year)1                  -0.034181   0.322994  -0.106    0.917
+s(year)2                   0.063166   0.314324   0.201    0.843
+s(year)3                  -0.081611   0.264211  -0.309    0.761
+s(year)4                   0.134235   0.250585   0.536    0.598
+s(year)5                  -0.224959   0.249579  -0.901    0.378
+s(year)6                   0.409552   0.252485   1.622    0.120
+s(year)7                   0.087549   0.268295   0.326    0.748
+s(year)8                  -0.112741   0.314326  -0.359    0.724
+s(year)9                   0.121234   0.321973   0.377    0.710
+s(year)10                  0.001919   0.182498   0.011    0.992
+
+
+Topic 17:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)               -0.018438   0.135780  -0.136    0.893
+partynameRepublican Party  0.048758   0.066449   0.734    0.472
+s(year)1                  -0.304131   0.345236  -0.881    0.389
+s(year)2                   0.432084   0.379807   1.138    0.269
+s(year)3                   0.186051   0.281499   0.661    0.516
+s(year)4                  -0.126454   0.260416  -0.486    0.633
+s(year)5                   0.075140   0.257669   0.292    0.774
+s(year)6                  -0.042694   0.259763  -0.164    0.871
+s(year)7                   0.017344   0.275439   0.063    0.950
+s(year)8                  -0.020179   0.331797  -0.061    0.952
+s(year)9                   0.003207   0.324854   0.010    0.992
+s(year)10                 -0.005867   0.186752  -0.031    0.975
+
+
+Topic 18:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)                0.047505   0.137692   0.345   0.7337  
+partynameRepublican Party -0.088095   0.073867  -1.193   0.2470  
+s(year)1                  -0.004768   0.335584  -0.014   0.9888  
+s(year)2                   0.018059   0.328909   0.055   0.9568  
+s(year)3                  -0.028560   0.278775  -0.102   0.9194  
+s(year)4                   0.054421   0.265573   0.205   0.8397  
+s(year)5                  -0.114109   0.277657  -0.411   0.6855  
+s(year)6                   0.540374   0.294771   1.833   0.0817 .
+s(year)7                  -0.426390   0.312713  -1.364   0.1879  
+s(year)8                   0.665014   0.409843   1.623   0.1203  
+s(year)9                  -0.127897   0.359246  -0.356   0.7256  
+s(year)10                 -0.001666   0.188417  -0.009   0.9930  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Topic 19:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)               -0.043696   0.111969  -0.390    0.700
+partynameRepublican Party  0.089991   0.058552   1.537    0.140
+s(year)1                  -0.072921   0.277549  -0.263    0.795
+s(year)2                   0.156101   0.274729   0.568    0.576
+s(year)3                  -0.203590   0.234436  -0.868    0.395
+s(year)4                   0.322195   0.237378   1.357    0.190
+s(year)5                   0.268454   0.243214   1.104    0.283
+s(year)6                  -0.132276   0.223206  -0.593    0.560
+s(year)7                   0.077277   0.227173   0.340    0.737
+s(year)8                  -0.056472   0.273494  -0.206    0.839
+s(year)9                   0.041490   0.265261   0.156    0.877
+s(year)10                  0.005849   0.154317   0.038    0.970
+
+
+Topic 20:
+
+Coefficients:
+                           Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)                0.046113   0.132542   0.348    0.732
+partynameRepublican Party -0.082997   0.066174  -1.254    0.224
+s(year)1                  -0.146740   0.332919  -0.441    0.664
+s(year)2                   0.105551   0.330921   0.319    0.753
+s(year)3                   0.480987   0.309115   1.556    0.135
+s(year)4                  -0.238137   0.256204  -0.929    0.364
+s(year)5                   0.130020   0.250618   0.519    0.610
+s(year)6                  -0.077310   0.252579  -0.306    0.763
+s(year)7                   0.040822   0.263694   0.155    0.879
+s(year)8                  -0.038056   0.321318  -0.118    0.907
+s(year)9                   0.013377   0.312427   0.043    0.966
+s(year)10                 -0.002975   0.182851  -0.016    0.987</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot difference in topic prevalence by party</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.estimateEffect</span>(</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  estim, </span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">covariate =</span> <span class="st">"partyname"</span>,</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"difference"</span>, </span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cov.value1 =</span> <span class="st">"Democratic Party"</span>, </span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">cov.value2 =</span> <span class="st">"Republican Party"</span>, </span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="cn">NULL</span>,</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Democratic Party  . . .  Republican Party"</span>,</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>),</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">15</span>),</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#labeltype = "custom",</span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">#custom.labels = topic_labels,</span></span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose.labels =</span> <span class="cn">FALSE</span></span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="KERR-Assignment-4v6_files/figure-html/estimate_effect-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
-</figure>
 </div>
-</div>
-</div>
-<p>We can calculate correlation between topics using <code>topicCorr</code>. Positive correlations indicate that two topics are likely to co-occur in the same manifesto. We can then plot a graph showing connections between topics.</p>
+<p>Our regression tables show the estimated change in topic proportion based on the year and party associated with a given manifesto. Notably, only topics 3 and 12, which correspond with “minorities” and the “US constitution” respectively, show a statistically significant correlation with party. We observe that Republican manifestos are associated with a lower proportion of topic 3 but a higher proportion of topic 12. However, given the relatively weak statistical significance of our estimates, we need to interpret these results with a grain of salt.</p>
+<p>To visualize these results, we can use the <code>tidystm</code> package to plot the prevalence of topics over time by party.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>mod.out.corr <span class="ot">&lt;-</span> <span class="fu">topicCorr</span>(topic_model)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mod.out.corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="KERR-Assignment-4v6_files/figure-html/topic_corr-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">toLDAvis</span>(</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  topic_model,</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  docs,</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">30</span>,</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.opts =</span> <span class="fu">list</span>(<span class="at">xlab =</span> <span class="st">"PC1"</span>, <span class="at">ylab =</span> <span class="st">"PC2"</span>),</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">lambda.step =</span> <span class="fl">0.1</span>,</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">out.dir =</span> <span class="fu">tempfile</span>(),</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">open.browser =</span> <span class="fu">interactive</span>(),</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">as.gist =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">reorder.topics =</span> <span class="cn">TRUE</span></span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">#![LDAvis](img/lda-vis.png){width=100%} </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>effect <span class="ot">&lt;-</span> <span class="fu">extract.estimateEffect</span>(</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  estim,</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">covariate =</span> <span class="st">"partyname"</span>,</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> topic_model, </span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"pointestimate"</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Lets extract the estimates in a tidy format so that we can plot it</span></span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="do">## ourselves. We can now use lapply instead to first run it with</span></span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="do">## moderator.value 0 and then with moderator.value 1, and then bind</span></span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="do">## the two data frames together.</span></span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>effect <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">c</span>(<span class="st">"Democratic Party"</span>, <span class="st">"Republican Party"</span>), <span class="cf">function</span>(i) {</span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract.estimateEffect</span>(estim,</span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>                         <span class="at">covariate =</span> <span class="st">"year"</span>,</span>
-<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>                         <span class="at">method =</span> <span class="st">"continuous"</span>,</span>
-<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>                         <span class="at">model =</span> topic_model,</span>
-<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>                         <span class="at">labeltype =</span> <span class="st">"frex"</span>,</span>
-<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>                         <span class="at">n =</span> <span class="dv">5</span>,</span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>                         <span class="at">moderator =</span> <span class="st">"partyname"</span>,</span>
-<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>                         <span class="at">moderator.value =</span> i)</span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>effect <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="st">"rbind"</span>, effect)</span>
-<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a><span class="do">## And, for example, plot it with ggplot2 and facet by topic instead.</span></span>
-<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(effect, <span class="fu">aes</span>(<span class="at">x =</span> covariate.value, <span class="at">y =</span> estimate,</span>
-<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>                   <span class="at">ymin =</span> ci.lower, <span class="at">ymax =</span> ci.upper,</span>
-<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>                   <span class="at">group =</span> moderator.value,</span>
-<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>                   <span class="at">fill =</span> <span class="fu">factor</span>(moderator.value))) <span class="sc">+</span></span>
-<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> label, <span class="at">nrow =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha =</span> .<span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>,</span>
-<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Expected Topic Proportion"</span>,</span>
-<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
-<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract estimates for Democrats and Republicans</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>extracted_estim <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">c</span>(<span class="st">"Democratic Party"</span>, <span class="st">"Republican Party"</span>), \(i) {</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract.estimateEffect</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    estim,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">covariate =</span> <span class="st">"year"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"continuous"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> topic_model,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">labeltype =</span> <span class="st">"custom"</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">custom.labels =</span> <span class="fu">paste0</span>(<span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"0"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>), <span class="dv">10</span><span class="sc">:</span>n_topics), <span class="st">": "</span>, topic_labels),</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">moderator =</span> <span class="st">"partyname"</span>,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">moderator.value =</span> i)</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co"># combine data for both parties </span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>extracted_estim <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="st">"rbind"</span>, extracted_estim)</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="co"># plot topic trends over time by party</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>extracted_estim <span class="sc">|&gt;</span> </span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> covariate.value, </span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> estimate,</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>             <span class="at">ymin =</span> ci.lower, </span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>             <span class="at">ymax =</span> ci.upper,</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>             <span class="at">group =</span> moderator.value,</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill =</span> <span class="fu">factor</span>(moderator.value))) <span class="sc">+</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> label, <span class="at">nrow =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha =</span> .<span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Expected Topic Proportion"</span>,</span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>, <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust =</span> <span class="dv">1</span>),</span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -2008,6 +2428,9 @@ year                       0.001027   0.001908   0.538    0.595</code></pre>
 </div>
 </div>
 </div>
+<p>As observed in the regression tables, our visualization shows a very minor difference in topic prevalence between Democratic and Republican manifestos for most topics. Even for topics where topic prevalence is estimated to differ by party (see topic 12), the estimated values are still well within the uncertainty bands surrounding our estimates. For all topics, the difference in topic prevalence between Democratic and Republican manifestos appears to remain consistent over time. Based on these results, we cannot conclude that the topic prevalence for different topics contained in Democratic and Republican party manifestos have diverged over time.</p>
+<p>Our results must be interpreted with caution since anyone of the steps taken in this analysis could have influenced the results. As such, we may need to take a closer look at our data processing (e.g., minimum frequency threshold), hyperparameter selection (e.g., number topics <code>K</code>), and model specification to be more confident in our findings. Should our results prove to be robust, then this would indicate that the Democratic and Republican parties largely address many of the same topics when drafting their manifestos, rendering these documents poor indicators of political polarization.</p>
+<p>An inherent limitation in this approach is that while we investigate <em>what</em> parties talk about in their manifestos, we don’t explore <em>how</em> they talk about these topics. It may be that both parties talk about education policy because the issue is politically salient, however, the parties may frame the issue in either a more positive or more negative light. An additional limitation, with this analysis is that it examines the overall party manifestos which are large documents that are intended to state the party’s views on a variety of documents. It may have made more sense to investigate excerpts of these manifestos that all related to a single topic such as energy politics in order to get a more granular look into whether subtopics appear at different rates for Democratic and Republican manifestos. It would be interesting to explore these ideas in the future.</p>
 </section>
 </section>
 <section id="sources" class="level1">
@@ -2019,13 +2442,14 @@ year                       0.001027   0.001908   0.538    0.595</code></pre>
 <section id="resources" class="level1">
 <h1>Resources</h1>
 <ul>
-<li><a href="https://www.cs.columbia.edu/~blei/papers/Blei2012.pdf" class="uri">https://www.cs.columbia.edu/~blei/papers/Blei2012.pdf</a></li>
-<li><a href="https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf"><code>manifestoR</code> vignette</a></li>
-<li><a href="https://manifesto-project.wzb.eu/tutorials/primer" class="uri">https://manifesto-project.wzb.eu/tutorials/primer</a></li>
-<li><a href="https://manifesto-project.wzb.eu/tutorials/main-dataset" class="uri">https://manifesto-project.wzb.eu/tutorials/main-dataset</a></li>
-<li><a href="https://manifesto-project.wzb.eu/tutorials/firststepsmanifestoR" class="uri">https://manifesto-project.wzb.eu/tutorials/firststepsmanifestoR</a></li>
-<li><a href="https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf" class="uri">https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf</a></li>
-<li><a href="https://github.com/mikajoh/tidystm" class="uri">https://github.com/mikajoh/tidystm</a></li>
+<li><p>Blei, D. M. (2012, April). Probabilistic topic models. Communications of the ACM, 55(4), 77–84. <a href="https://doi.org/10.1145/2133806.2133826" class="uri">https://doi.org/10.1145/2133806.2133826</a></p></li>
+<li><p><a href="https://manifesto-project.wzb.eu/tutorials/primer">WZB (2018). A short primer on the Manifesto Project and its methodology.</a></p></li>
+<li><p><a href="https://manifesto-project.wzb.eu/tutorials/main-dataset">WZB (2018). Working with the Manifesto Project Dataset (Main Dataset)</a></p></li>
+<li><p><a href="https://manifesto-project.wzb.eu/tutorials/firststepsmanifestoR">WZB (2021). First steps with manifestoR</a></p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf"><code>manifestoR</code> vignette</a></p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf"><code>stm</code> vignette</a></p></li>
+<li><p><a href="https://github.com/cpsievert/LDAvis"><code>LDAvis</code> GitHub</a></p></li>
+<li><p><a href="https://github.com/mikajoh/tidystm"><code>tidystm</code> GitHub</a></p></li>
 </ul>
 </section>
 
